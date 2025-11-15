@@ -8,6 +8,9 @@ import { RecordingIndicator } from '@/lib/RecordingIndicator';
 import { SettingsMenu } from '@/lib/SettingsMenu';
 import { InviteButton } from '@/lib/InviteButton';
 import { RoomBranding } from '@/lib/RoomBranding';
+import { ParticipantManager } from '@/lib/ParticipantManager';
+import { RecordingControls } from '@/lib/RecordingControls';
+import { EnhancedChat } from '@/lib/EnhancedChat';
 import { ConnectionDetails } from '@/lib/types';
 import {
   formatChatMessageLinks,
@@ -15,7 +18,14 @@ import {
   PreJoin,
   RoomContext,
   VideoConference,
+  useTracks,
+  GridLayout,
+  ParticipantTile,
+  ControlBar,
+  RoomAudioRenderer,
+  ConnectionStateToast,
 } from '@livekit/components-react';
+import { Track } from 'livekit-client';
 import {
   ExternalE2EEKeyProvider,
   RoomOptions,
@@ -219,6 +229,15 @@ function VideoConferenceComponent(props: {
     }
   }, [lowPowerMode]);
 
+  const [showChat, setShowChat] = React.useState(false);
+  const tracks = useTracks(
+    [
+      { source: Track.Source.Camera, withPlaceholder: true },
+      { source: Track.Source.ScreenShare, withPlaceholder: false },
+    ],
+    { onlySubscribed: false }
+  );
+
   return (
     <div className="lk-room-container" style={{ position: 'relative' }}>
       <RoomContext.Provider value={room}>
@@ -233,11 +252,88 @@ function VideoConferenceComponent(props: {
         >
           <InviteButton />
         </div>
+        <ParticipantManager />
+        <RecordingControls />
         <KeyboardShortcuts />
-        <VideoConference
-          chatMessageFormatter={formatChatMessageLinks}
-          SettingsComponent={SHOW_SETTINGS_MENU ? SettingsMenu : undefined}
-        />
+
+        {/* Custom Video Conference Layout */}
+        <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+          <div style={{ flex: 1, display: 'flex', position: 'relative', overflow: 'hidden' }}>
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+              <div style={{ flex: 1, overflow: 'hidden' }}>
+                <GridLayout tracks={tracks}>
+                  <ParticipantTile />
+                </GridLayout>
+              </div>
+              <div style={{ padding: '1rem', background: 'rgba(0, 0, 0, 0.5)' }}>
+                <ControlBar variation="verbose" />
+              </div>
+            </div>
+
+            {showChat && (
+              <div
+                style={{
+                  width: '350px',
+                  background: 'rgba(0, 0, 0, 0.9)',
+                  borderLeft: '1px solid rgba(255, 255, 255, 0.15)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                }}
+              >
+                <div style={{
+                  padding: '1rem',
+                  borderBottom: '1px solid rgba(255, 255, 255, 0.15)',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center'
+                }}>
+                  <h3 style={{ margin: 0 }}>Chat</h3>
+                  <button
+                    onClick={() => setShowChat(false)}
+                    className="lk-button"
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      color: 'white',
+                      cursor: 'pointer',
+                      fontSize: '1.5rem',
+                      padding: '0 0.5rem'
+                    }}
+                  >
+                    ×
+                  </button>
+                </div>
+                <div style={{ flex: 1, overflow: 'hidden' }}>
+                  <EnhancedChat />
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Chat Toggle Button */}
+          {!showChat && (
+            <button
+              onClick={() => setShowChat(true)}
+              className="lk-button"
+              style={{
+                position: 'absolute',
+                bottom: '5rem',
+                left: '1rem',
+                padding: '0.5rem 1rem',
+                background: 'rgba(0, 102, 255, 0.8)',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                borderRadius: '0.5rem',
+                zIndex: 10,
+              }}
+            >
+              💬 Chat
+            </button>
+          )}
+
+          <RoomAudioRenderer />
+          <ConnectionStateToast />
+        </div>
+
         <DebugMode />
         <RecordingIndicator />
       </RoomContext.Provider>
