@@ -2,9 +2,40 @@
   box-sizing: border-box;
 }
 
+:root {
+  /* Logo-aligned primary colors */
+  --vcyber-cyan: #00d4ff;
+  --vcyber-blue: #0066ff;
+  --vcyber-purple: #a855f7;
+  --vcyber-dark: #0a1628;
+  --vcyber-darker: #050b14;
+
+  /* Utility colors (status indicators) */
+  --vcyber-success: #10b981;
+  --vcyber-danger: #ef4444;
+  --vcyber-warning: #f59e0b;
+
+  /* Gradient definition */
+  --gradient-vcyber: linear-gradient(135deg, #00d4ff 0%, #0066ff 50%, #a855f7 100%);
+
+  /* Alpha variants (for backgrounds) */
+  --vcyber-cyan-bg: rgba(0, 212, 255, 0.1);
+  --vcyber-cyan-border: rgba(0, 212, 255, 0.3);
+  --vcyber-blue-bg: rgba(0, 102, 255, 0.1);
+  --vcyber-blue-border: rgba(0, 102, 255, 0.3);
+  --vcyber-purple-bg: rgba(168, 85, 247, 0.1);
+  --vcyber-purple-border: rgba(168, 85, 247, 0.3);
+  --vcyber-success-bg: rgba(16, 185, 129, 0.1);
+  --vcyber-success-border: rgba(16, 185, 129, 0.3);
+  --vcyber-danger-bg: rgba(239, 68, 68, 0.1);
+  --vcyber-danger-border: rgba(239, 68, 68, 0.3);
+  --vcyber-warning-bg: rgba(245, 158, 11, 0.1);
+  --vcyber-warning-border: rgba(245, 158, 11, 0.3);
+}
+
 html {
   color-scheme: dark;
-  background: linear-gradient(135deg, #000428 0%, #004e92 50%, #2d0f4d 100%);
+  background: linear-gradient(135deg, var(--vcyber-dark) 0%, #001a3d 50%, #0a0a1a 100%);
 }
 
 html,
@@ -18,7 +49,7 @@ body {
 body {
   display: flex;
   flex-direction: column;
-  background: linear-gradient(135deg, #000428 0%, #004e92 50%, #2d0f4d 100%);
+  background: transparent;
 }
 
 .header {
@@ -53,14 +84,14 @@ footer {
 
 footer a,
 h2 a {
-  color: #ff6352;
-  text-decoration-color: #a33529;
+  color: var(--vcyber-cyan);
+  text-decoration-color: var(--vcyber-blue);
   text-underline-offset: 0.125em;
 }
 
 footer a:hover,
 h2 a {
-  text-decoration-color: #ff6352;
+  text-decoration-color: var(--vcyber-cyan);
 }
 
 h2 a {

@@ -106,15 +106,15 @@ export function ParticipantManager() {
     <>
       <button
         onClick={() => setShowManager(!showManager)}
-        className="lk-button"
+        className="lk-button participant-manage-btn"
         style={{
-          position: 'absolute',
+          position: 'fixed',
           top: '1rem',
-          right: '8rem',
+          right: '10rem',
           zIndex: 10,
           padding: '0.5rem 1rem',
-          background: 'rgba(153, 51, 255, 0.8)',
-          border: '1px solid rgba(255, 255, 255, 0.2)',
+          background: 'var(--vcyber-purple-bg)',
+          border: '1px solid var(--vcyber-purple-border)',
           borderRadius: '0.5rem',
         }}
       >
@@ -123,8 +123,9 @@ export function ParticipantManager() {
 
       {showManager && (
         <div
+          className="participant-manage-panel"
           style={{
-            position: 'absolute',
+            position: 'fixed',
             top: '4rem',
             right: '1rem',
             width: '300px',
@@ -163,9 +164,9 @@ export function ParticipantManager() {
                     style={{
                       padding: '0.5rem',
                       marginBottom: '0.5rem',
-                      background: 'rgba(255,165,0,0.1)',
+                      background: 'var(--vcyber-warning-bg)',
                       borderRadius: '0.25rem',
-                      border: '1px solid rgba(255,165,0,0.3)',
+                      border: '1px solid var(--vcyber-warning-border)',
                     }}
                   >
                     <div style={{ marginBottom: '0.5rem' }}>{identity}</div>
@@ -173,14 +174,14 @@ export function ParticipantManager() {
                       <button
                         onClick={() => handleApprove(identity)}
                         className="lk-button"
-                        style={{ flex: 1, padding: '0.25rem', fontSize: '0.75rem', background: 'rgba(0,255,0,0.3)' }}
+                        style={{ flex: 1, padding: '0.25rem', fontSize: '0.75rem', background: 'var(--vcyber-success-bg)', border: '1px solid var(--vcyber-success-border)' }}
                       >
                         ✓ Approve
                       </button>
                       <button
                         onClick={() => handleDeny(identity)}
                         className="lk-button"
-                        style={{ flex: 1, padding: '0.25rem', fontSize: '0.75rem', background: 'rgba(255,0,0,0.3)' }}
+                        style={{ flex: 1, padding: '0.25rem', fontSize: '0.75rem', background: 'var(--vcyber-danger-bg)', border: '1px solid var(--vcyber-danger-border)' }}
                       >
                         ✕ Deny
                       </button>
@@ -224,8 +225,8 @@ export function ParticipantManager() {
                       style={{
                         padding: '0.25rem 0.5rem',
                         fontSize: '0.75rem',
-                        background: 'rgba(255,0,0,0.3)',
-                        border: '1px solid rgba(255,0,0,0.5)',
+                        background: 'var(--vcyber-danger-bg)',
+                        border: '1px solid var(--vcyber-danger-border)',
                       }}
                     >
                       Kick
@@ -237,6 +238,24 @@ export function ParticipantManager() {
           </div>
         </div>
       )}
+
+      <style jsx global>{`
+        @media (max-width: 768px) {
+          .participant-manage-btn {
+            right: 0.5rem !important;
+            top: 0.5rem !important;
+            padding: 0.4rem 0.6rem !important;
+            font-size: 0.75rem !important;
+          }
+
+          .participant-manage-panel {
+            width: calc(100vw - 1rem) !important;
+            right: 0.5rem !important;
+            top: 3rem !important;
+            max-height: 70vh !important;
+          }
+        }
+      `}</style>
     </>
   );
 }
