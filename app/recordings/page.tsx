@@ -57,12 +57,25 @@ export default function RecordingsPage() {
   return (
     <main className={styles.main} data-lk-theme="default">
       <div className="header">
-        <img src="/images/logo.jpg" alt="Vcyber" width="100" height="100" style={{ borderRadius: '8px' }} />
+        <img
+          src="/images/logo.jpg"
+          alt="Vcyber"
+          width="100"
+          height="100"
+          style={{ borderRadius: '8px' }}
+        />
         <h2>Vcyber Recordings</h2>
       </div>
 
       <div style={{ width: '100%', maxWidth: '800px', padding: '2rem' }}>
-        <div style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div
+          style={{
+            marginBottom: '2rem',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
           <h3 style={{ margin: 0 }}>All Recordings</h3>
           <button
             onClick={() => router.push('/')}
@@ -78,13 +91,15 @@ export default function RecordingsPage() {
             <p>Loading recordings...</p>
           </div>
         ) : recordings.length === 0 ? (
-          <div style={{
-            textAlign: 'center',
-            padding: '3rem',
-            background: 'rgba(255,255,255,0.05)',
-            borderRadius: '0.5rem',
-            border: '1px solid rgba(255,255,255,0.15)'
-          }}>
+          <div
+            style={{
+              textAlign: 'center',
+              padding: '3rem',
+              background: 'rgba(255,255,255,0.05)',
+              borderRadius: '0.5rem',
+              border: '1px solid rgba(255,255,255,0.15)',
+            }}
+          >
             <p style={{ fontSize: '3rem', margin: '0 0 1rem 0' }}>🎥</p>
             <h3>No recordings yet</h3>
             <p style={{ color: 'rgba(255,255,255,0.6)' }}>
@@ -103,7 +118,14 @@ export default function RecordingsPage() {
                   border: '1px solid rgba(255,255,255,0.15)',
                 }}
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'flex-start',
+                    marginBottom: '1rem',
+                  }}
+                >
                   <div>
                     <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '1.25rem' }}>
                       {recording.roomName}
@@ -117,7 +139,10 @@ export default function RecordingsPage() {
                       padding: '0.25rem 0.75rem',
                       borderRadius: '1rem',
                       fontSize: '0.75rem',
-                      background: recording.status === 'completed' ? 'rgba(0,255,0,0.2)' : 'rgba(255,165,0,0.2)',
+                      background:
+                        recording.status === 'completed'
+                          ? 'rgba(0,255,0,0.2)'
+                          : 'rgba(255,165,0,0.2)',
                       border: `1px solid ${recording.status === 'completed' ? 'rgba(0,255,0,0.4)' : 'rgba(255,165,0,0.4)'}`,
                     }}
                   >
@@ -125,7 +150,15 @@ export default function RecordingsPage() {
                   </span>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', fontSize: '0.875rem', marginBottom: '1rem' }}>
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: '1fr 1fr',
+                    gap: '1rem',
+                    fontSize: '0.875rem',
+                    marginBottom: '1rem',
+                  }}
+                >
                   <div>
                     <span style={{ color: 'rgba(255,255,255,0.6)' }}>Recording ID:</span>
                     <br />

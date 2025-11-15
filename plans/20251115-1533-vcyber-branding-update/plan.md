@@ -12,6 +12,7 @@
 Update Vcyber's visual identity from current blue-purple gradient (#000428→#004e92→#2d0f4d) to logo-aligned cyan-blue-purple gradient (#00d4ff→#0066ff→#a855f7) on dark navy (#0a1628). Replace coral accent (#ff6352) with cyan (#00d4ff) for primary actions. Fix chat notifications to respect window focus, implement rate limiting, add audio alerts, and provide user preferences.
 
 **Key Changes:**
+
 - Extract 5-color palette from logo gradient
 - Establish CSS variable system for runtime theming
 - Update 4 component files (UnifiedMenu, RecordingControls, ParticipantManager, EnhancedChat)
@@ -21,6 +22,7 @@ Update Vcyber's visual identity from current blue-purple gradient (#000428→#00
 - Create notification preferences UI
 
 **Success Metrics:**
+
 - All colors match logo gradient stops
 - WCAG AA contrast compliance (4.5:1 minimum)
 - Zero notifications when window focused
@@ -32,6 +34,7 @@ Update Vcyber's visual identity from current blue-purple gradient (#000428→#00
 ## Phase Structure
 
 ### Phase 1: Color Extraction & CSS Foundation
+
 **Duration:** 2-3 hours
 **Files:** `styles/globals.css`, `tailwind.config.ts` (optional)
 **Details:** [phase-1-color-foundation.md](./phase-1-color-foundation.md)
@@ -39,6 +42,7 @@ Update Vcyber's visual identity from current blue-purple gradient (#000428→#00
 Extract logo colors into CSS variables, update global gradient, establish theming system. No Tailwind required (research shows CSS variables sufficient for this codebase).
 
 ### Phase 2: Component Styling Updates
+
 **Duration:** 4-5 hours
 **Files:** `lib/UnifiedMenu.tsx`, `lib/RecordingControls.tsx`, `lib/ParticipantManager.tsx`, `lib/EnhancedChat.tsx`
 **Details:** [phase-2-component-styling.md](./phase-2-component-styling.md)
@@ -46,6 +50,7 @@ Extract logo colors into CSS variables, update global gradient, establish themin
 Replace inline rgba colors with CSS variable references. Update button backgrounds, borders, notification badges, and status indicators.
 
 ### Phase 3: Chat Notification Enhancements
+
 **Duration:** 4-6 hours
 **Files:** `lib/EnhancedChat.tsx`, `public/notification.mp3` (new)
 **Details:** [phase-3-notification-fixes.md](./phase-3-notification-fixes.md)
@@ -53,6 +58,7 @@ Replace inline rgba colors with CSS variable references. Update button backgroun
 Implement window focus detection, sender-based rate limiting, audio notifications, and user preference toggles.
 
 ### Phase 4: Testing & Verification
+
 **Duration:** 2-3 hours
 **Files:** All modified files
 **Details:** [phase-4-testing.md](./phase-4-testing.md)
@@ -64,24 +70,24 @@ Accessibility testing (contrast ratios), cross-browser validation, notification 
 ## Color Palette (Logo-Aligned)
 
 ### Primary Colors
+
 ```css
---vcyber-cyan: #00d4ff       /* Primary accent, buttons, links */
---vcyber-blue: #0066ff       /* Secondary accent, hover states */
---vcyber-purple: #a855f7     /* Tertiary accent, highlights */
---vcyber-dark: #0a1628       /* Background base */
---vcyber-darker: #050b14     /* Deep backgrounds */
+--vcyber-cyan: #00d4ff /* Primary accent, buttons, links */ --vcyber-blue: #0066ff
+  /* Secondary accent, hover states */ --vcyber-purple: #a855f7 /* Tertiary accent, highlights */
+  --vcyber-dark: #0a1628 /* Background base */ --vcyber-darker: #050b14 /* Deep backgrounds */;
 ```
 
 ### Utility Colors (Status & Feedback)
+
 ```css
---vcyber-success: #10b981    /* Approval, success actions */
---vcyber-danger: #ef4444     /* Kick, deny, recording */
---vcyber-warning: #f59e0b    /* Waiting room, pause */
+--vcyber-success: #10b981 /* Approval, success actions */ --vcyber-danger: #ef4444
+  /* Kick, deny, recording */ --vcyber-warning: #f59e0b /* Waiting room, pause */;
 ```
 
 ### Gradient Definition
+
 ```css
---gradient-vcyber: linear-gradient(135deg, #00d4ff 0%, #0066ff 50%, #a855f7 100%)
+--gradient-vcyber: linear-gradient(135deg, #00d4ff 0%, #0066ff 50%, #a855f7 100%);
 ```
 
 ---
@@ -89,41 +95,48 @@ Accessibility testing (contrast ratios), cross-browser validation, notification 
 ## Current vs. Target State
 
 ### Background Gradient
+
 - **Current:** `linear-gradient(135deg, #000428 0%, #004e92 50%, #2d0f4d 100%)`
 - **Target:** `linear-gradient(135deg, #00d4ff 0%, #0066ff 50%, #a855f7 100%)` (with dark overlay)
 
 ### Accent Colors
+
 - **Current:** Coral `#ff6352` for links
 - **Target:** Cyan `#00d4ff` for primary actions
 
 ### Component Inline Colors (4 files)
-| Component | Current Colors | Target Variables |
-|-----------|---------------|------------------|
-| UnifiedMenu | `rgba(0,102,255,0.3)`, `rgba(255,0,0,0.3)`, `rgba(0,255,0,0.3)`, `rgba(153,51,255,0.3)` | `var(--vcyber-blue)`, `var(--vcyber-danger)`, `var(--vcyber-success)`, `var(--vcyber-purple)` |
-| RecordingControls | `rgba(255,0,0,0.6)`, `rgba(255,165,0,0.6)`, `rgba(0,255,0,0.6)` | `var(--vcyber-danger)`, `var(--vcyber-warning)`, `var(--vcyber-success)` |
+
+| Component          | Current Colors                                                                          | Target Variables                                                                                    |
+| ------------------ | --------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| UnifiedMenu        | `rgba(0,102,255,0.3)`, `rgba(255,0,0,0.3)`, `rgba(0,255,0,0.3)`, `rgba(153,51,255,0.3)` | `var(--vcyber-blue)`, `var(--vcyber-danger)`, `var(--vcyber-success)`, `var(--vcyber-purple)`       |
+| RecordingControls  | `rgba(255,0,0,0.6)`, `rgba(255,165,0,0.6)`, `rgba(0,255,0,0.6)`                         | `var(--vcyber-danger)`, `var(--vcyber-warning)`, `var(--vcyber-success)`                            |
 | ParticipantManager | `rgba(153,51,255,0.8)`, `rgba(255,165,0,0.1)`, `rgba(0,255,0,0.3)`, `rgba(255,0,0,0.3)` | `var(--vcyber-purple)`, `var(--vcyber-warning-bg)`, `var(--vcyber-success)`, `var(--vcyber-danger)` |
-| EnhancedChat | `rgba(0,102,255,0.1)`, `rgba(0,102,255,0.3)`, `rgba(0,255,0,0.3)` | `var(--vcyber-blue-bg)`, `var(--vcyber-blue)`, `var(--vcyber-success)` |
+| EnhancedChat       | `rgba(0,102,255,0.1)`, `rgba(0,102,255,0.3)`, `rgba(0,255,0,0.3)`                       | `var(--vcyber-blue-bg)`, `var(--vcyber-blue)`, `var(--vcyber-success)`                              |
 
 ---
 
 ## Chat Notification Fixes (Research-Backed)
 
 ### Issue 1: Window Focus Detection (FIXED)
+
 **Current:** Notifies even when chat visible
 **Solution:** `useWindowFocus()` hook + `document.hasFocus()` check
 **Reference:** NOTIFICATION_RESEARCH.md lines 16-19
 
 ### Issue 2: Notification Spam (FIXED)
+
 **Current:** Burst messages create multiple toasts
 **Solution:** Per-sender throttling (3s minimum between notifications)
 **Reference:** NOTIFICATION_RESEARCH.md lines 84-100
 
 ### Issue 3: Audio Alerts (NEW)
+
 **Current:** Visual-only notifications
 **Solution:** Web Audio API with `/notification.mp3`, user gesture required
 **Reference:** NOTIFICATION_RESEARCH.md lines 105-131
 
 ### Issue 4: User Preferences (NEW)
+
 **Current:** No control over notification behavior
 **Solution:** Toggles for enable/disable, sound, mentions-only, throttle duration
 **Reference:** NOTIFICATION_RESEARCH.md lines 136-155
@@ -140,10 +153,12 @@ Accessibility testing (contrast ratios), cross-browser validation, notification 
 4. **Phase 4 (Validation)** - Accessibility + cross-browser testing
 
 **Parallel Tasks Allowed:**
+
 - Phase 2 component updates can be done in parallel (4 independent files)
 - Phase 3 audio file acquisition can happen during Phase 1-2
 
 **Sequential Dependencies:**
+
 - Phase 2 requires Phase 1 CSS variables
 - Phase 4 requires Phase 1-3 completion
 
@@ -152,16 +167,19 @@ Accessibility testing (contrast ratios), cross-browser validation, notification 
 ## Risk Assessment
 
 ### Low Risk Items
+
 - CSS variable addition (non-breaking, fallback to inline styles)
 - Component color updates (visual only, no logic changes)
 - Window focus detection (additive, doesn't break existing flow)
 
 ### Medium Risk Items
+
 - Notification throttling (could suppress legitimate notifications if misconfigured)
 - Audio notification (browser autoplay restrictions may block)
 - Gradient accessibility (cyan luminosity requires contrast testing)
 
 ### Mitigation Strategies
+
 - **Throttling:** Make duration configurable (default 3s, user can adjust)
 - **Audio:** Graceful degradation (visual toast always shows, audio optional)
 - **Contrast:** Add semi-transparent dark overlay on gradient backgrounds for text
@@ -182,17 +200,20 @@ Accessibility testing (contrast ratios), cross-browser validation, notification 
 ## Success Criteria
 
 ### Visual Identity
+
 - [ ] Background gradient matches logo (#00d4ff → #0066ff → #a855f7)
 - [ ] All accent colors use cyan/blue/purple palette (no coral/orange except warnings)
 - [ ] Dark navy background (#0a1628) applied consistently
 - [ ] Footer link color updated from #ff6352 to #00d4ff
 
 ### Accessibility
+
 - [ ] All text-on-gradient meets WCAG AA (4.5:1 contrast)
 - [ ] Button states have clear visual feedback
 - [ ] Color is not sole indicator of state (icons + text labels present)
 
 ### Notification Behavior
+
 - [ ] Zero notifications when window focused
 - [ ] Max 1 notification per sender per 3 seconds
 - [ ] Audio plays after user interaction (no autoplay errors)
@@ -200,6 +221,7 @@ Accessibility testing (contrast ratios), cross-browser validation, notification 
 - [ ] File transfer notifications not duplicated (existing behavior maintained)
 
 ### Technical Quality
+
 - [ ] No console errors in browser
 - [ ] No TypeScript compilation errors
 - [ ] Mobile responsive (tested 375px, 768px, 1024px widths)
@@ -222,11 +244,13 @@ Accessibility testing (contrast ratios), cross-browser validation, notification 
 ## Dependencies
 
 ### External Files Required
+
 - **Audio file:** `/public/notification.mp3` (50KB max, ~1-2 seconds duration)
   - **Acquisition:** Free sources (Freesound.org, Pixabay), CC0 license recommended
   - **Format:** MP3 (best browser support), 64kbps quality sufficient
 
 ### No Package Installations Required
+
 - React hooks (useState, useEffect, useRef) - already available
 - Web Audio API - native browser API
 - localStorage - native browser API

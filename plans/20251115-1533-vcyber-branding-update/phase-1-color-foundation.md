@@ -61,6 +61,7 @@ Establish CSS variable foundation for Vcyber branding colors, update global grad
 
 **File:** `styles/globals.css`
 **Current (lines 6-7):**
+
 ```css
 html {
   color-scheme: dark;
@@ -69,6 +70,7 @@ html {
 ```
 
 **Target:**
+
 ```css
 html {
   color-scheme: dark;
@@ -79,6 +81,7 @@ html {
 **Rationale:** Pure logo gradient (#00d4ff→#0066ff→#a855f7) too bright for background. Use darker variant with navy base. Logo gradient reserved for accents/buttons.
 
 **Alternative (if darker variant insufficient):**
+
 ```css
 html {
   color-scheme: dark;
@@ -107,6 +110,7 @@ html::before {
 
 **File:** `styles/globals.css`
 **Current (line 21):**
+
 ```css
 body {
   display: flex;
@@ -116,6 +120,7 @@ body {
 ```
 
 **Target:**
+
 ```css
 body {
   display: flex;
@@ -132,6 +137,7 @@ body {
 
 **File:** `styles/globals.css`
 **Current (lines 54-57):**
+
 ```css
 footer a,
 h2 a {
@@ -142,6 +148,7 @@ h2 a {
 ```
 
 **Target:**
+
 ```css
 footer a,
 h2 a {
@@ -159,6 +166,7 @@ h2 a {
 
 **File:** `styles/globals.css`
 **Current (lines 59-62):**
+
 ```css
 footer a:hover,
 h2 a {
@@ -167,6 +175,7 @@ h2 a {
 ```
 
 **Target:**
+
 ```css
 footer a:hover,
 h2 a {
@@ -179,6 +188,7 @@ h2 a {
 ### Step 6: Verify Contrast Ratios (30 min)
 
 **Tools:**
+
 - WebAIM Contrast Checker: https://webaim.org/resources/contrastchecker/
 - Chrome DevTools Lighthouse (Accessibility audit)
 
@@ -227,6 +237,7 @@ When using cyan backgrounds (buttons, badges), use dark navy text instead of whi
 ```
 
 **Usage Example:**
+
 ```tsx
 <h1 className="text-gradient-vcyber">Vcyber</h1>
 ```
@@ -236,6 +247,7 @@ When using cyan backgrounds (buttons, badges), use dark navy text instead of whi
 ## Testing Checklist
 
 ### Visual Verification
+
 - [ ] Open `http://localhost:3000` in browser
 - [ ] Background gradient visible (darker navy tones, no bright cyan)
 - [ ] Footer links display cyan color (#00d4ff)
@@ -243,12 +255,14 @@ When using cyan backgrounds (buttons, badges), use dark navy text instead of whi
 - [ ] No visual regressions (layout unchanged)
 
 ### Browser DevTools Inspection
+
 - [ ] Open DevTools → Inspect `<html>` element
 - [ ] Computed styles show `--vcyber-cyan: #00d4ff` (CSS variables loaded)
 - [ ] Background gradient uses new color values
 - [ ] No console errors
 
 ### Accessibility Testing
+
 - [ ] Run Lighthouse audit (DevTools → Lighthouse → Accessibility)
 - [ ] Score remains ≥90 (no contrast ratio failures)
 - [ ] Manually verify footer link contrast with WebAIM tool
@@ -292,15 +306,18 @@ cp styles/globals.css.backup styles/globals.css
 ## Common Issues & Solutions
 
 ### Issue 1: CSS Variables Not Applied
+
 **Symptom:** Components still show old colors
 **Cause:** Browser cache
 **Solution:** Hard refresh (Cmd+Shift+R on Mac, Ctrl+Shift+R on Windows)
 
 ### Issue 2: Gradient Too Bright
+
 **Symptom:** Background overwhelming, poor readability
 **Solution:** Switch to darker variant (Step 2 alternative approach)
 
 ### Issue 3: Link Color Low Contrast
+
 **Symptom:** Lighthouse flags footer link contrast
 **Solution:** Add darker background to footer:
 

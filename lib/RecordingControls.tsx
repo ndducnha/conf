@@ -46,17 +46,16 @@ export function RecordingControls({ onClose }: RecordingControlsProps) {
 
         // Add local audio if enabled
         if (room.localParticipant.isMicrophoneEnabled) {
-          const localAudioTrack = room.localParticipant.getTrackPublication(Track.Source.Microphone);
+          const localAudioTrack = room.localParticipant.getTrackPublication(
+            Track.Source.Microphone,
+          );
           if (localAudioTrack?.track) {
             audioTracks.push(localAudioTrack.track.mediaStreamTrack);
           }
         }
 
         // Combine video from canvas and audio from participants
-        stream = new MediaStream([
-          ...canvasStream.getVideoTracks(),
-          ...audioTracks
-        ]);
+        stream = new MediaStream([...canvasStream.getVideoTracks(), ...audioTracks]);
       } else {
         // Fallback: ask for screen share if canvas not found
         stream = await navigator.mediaDevices.getDisplayMedia({
@@ -98,10 +97,12 @@ export function RecordingControls({ onClose }: RecordingControlsProps) {
 
         // Notify all participants
         const encoder = new TextEncoder();
-        const notification = encoder.encode(JSON.stringify({
-          action: 'recording-started',
-          recordingId: data.recordingId,
-        }));
+        const notification = encoder.encode(
+          JSON.stringify({
+            action: 'recording-started',
+            recordingId: data.recordingId,
+          }),
+        );
 
         await room.localParticipant.publishData(notification, {
           reliable: true,
@@ -109,7 +110,7 @@ export function RecordingControls({ onClose }: RecordingControlsProps) {
         });
       } else {
         mediaRecorder.stop();
-        stream.getTracks().forEach(track => track.stop());
+        stream.getTracks().forEach((track) => track.stop());
         toast.error(data.error || 'Failed to start recording');
       }
     } catch (error) {
@@ -131,7 +132,7 @@ export function RecordingControls({ onClose }: RecordingControlsProps) {
       });
 
       // Stop all tracks
-      mediaRecorder.stream.getTracks().forEach(track => track.stop());
+      mediaRecorder.stream.getTracks().forEach((track) => track.stop());
 
       // Create blob from recorded chunks
       const blob = new Blob(recordedChunksRef.current, { type: 'video/webm' });
@@ -171,10 +172,12 @@ export function RecordingControls({ onClose }: RecordingControlsProps) {
 
         // Notify all participants
         const encoder = new TextEncoder();
-        const notification = encoder.encode(JSON.stringify({
-          action: 'recording-stopped',
-          recordingId,
-        }));
+        const notification = encoder.encode(
+          JSON.stringify({
+            action: 'recording-stopped',
+            recordingId,
+          }),
+        );
 
         await room.localParticipant.publishData(notification, {
           reliable: true,
@@ -197,10 +200,12 @@ export function RecordingControls({ onClose }: RecordingControlsProps) {
     toast.success('Recording paused');
 
     const encoder = new TextEncoder();
-    const notification = encoder.encode(JSON.stringify({
-      action: 'recording-paused',
-      recordingId,
-    }));
+    const notification = encoder.encode(
+      JSON.stringify({
+        action: 'recording-paused',
+        recordingId,
+      }),
+    );
 
     await room.localParticipant.publishData(notification, {
       reliable: true,
@@ -216,10 +221,12 @@ export function RecordingControls({ onClose }: RecordingControlsProps) {
     toast.success('Recording resumed');
 
     const encoder = new TextEncoder();
-    const notification = encoder.encode(JSON.stringify({
-      action: 'recording-resumed',
-      recordingId,
-    }));
+    const notification = encoder.encode(
+      JSON.stringify({
+        action: 'recording-resumed',
+        recordingId,
+      }),
+    );
 
     await room.localParticipant.publishData(notification, {
       reliable: true,
@@ -242,16 +249,39 @@ export function RecordingControls({ onClose }: RecordingControlsProps) {
         minWidth: '250px',
       }}
     >
-      <div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div
+        style={{
+          marginBottom: '1rem',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}
+      >
         <h3 style={{ margin: 0, fontSize: '1rem' }}>
           Recording
           {recordingState === 'recording' && (
-            <span style={{ marginLeft: '0.5rem', width: '8px', height: '8px', background: 'var(--vcyber-danger)', borderRadius: '50%', display: 'inline-block', animation: 'pulse 1.5s infinite' }}></span>
+            <span
+              style={{
+                marginLeft: '0.5rem',
+                width: '8px',
+                height: '8px',
+                background: 'var(--vcyber-danger)',
+                borderRadius: '50%',
+                display: 'inline-block',
+                animation: 'pulse 1.5s infinite',
+              }}
+            ></span>
           )}
         </h3>
         <button
           onClick={onClose}
-          style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer', fontSize: '1.5rem' }}
+          style={{
+            background: 'none',
+            border: 'none',
+            color: 'white',
+            cursor: 'pointer',
+            fontSize: '1.5rem',
+          }}
         >
           ×
         </button>
@@ -277,14 +307,24 @@ export function RecordingControls({ onClose }: RecordingControlsProps) {
           <button
             onClick={pauseRecording}
             className="lk-button"
-            style={{ width: '100%', padding: '0.5rem', background: 'var(--vcyber-warning-bg)', border: '1px solid var(--vcyber-warning-border)' }}
+            style={{
+              width: '100%',
+              padding: '0.5rem',
+              background: 'var(--vcyber-warning-bg)',
+              border: '1px solid var(--vcyber-warning-border)',
+            }}
           >
             ⏸ Pause
           </button>
           <button
             onClick={stopRecording}
             className="lk-button"
-            style={{ width: '100%', padding: '0.5rem', background: 'var(--vcyber-danger-bg)', border: '1px solid var(--vcyber-danger-border)' }}
+            style={{
+              width: '100%',
+              padding: '0.5rem',
+              background: 'var(--vcyber-danger-bg)',
+              border: '1px solid var(--vcyber-danger-border)',
+            }}
           >
             ■ Stop & Save
           </button>
@@ -296,14 +336,24 @@ export function RecordingControls({ onClose }: RecordingControlsProps) {
           <button
             onClick={resumeRecording}
             className="lk-button"
-            style={{ width: '100%', padding: '0.5rem', background: 'var(--vcyber-success-bg)', border: '1px solid var(--vcyber-success-border)' }}
+            style={{
+              width: '100%',
+              padding: '0.5rem',
+              background: 'var(--vcyber-success-bg)',
+              border: '1px solid var(--vcyber-success-border)',
+            }}
           >
             ▶ Resume
           </button>
           <button
             onClick={stopRecording}
             className="lk-button"
-            style={{ width: '100%', padding: '0.5rem', background: 'var(--vcyber-danger-bg)', border: '1px solid var(--vcyber-danger-border)' }}
+            style={{
+              width: '100%',
+              padding: '0.5rem',
+              background: 'var(--vcyber-danger-bg)',
+              border: '1px solid var(--vcyber-danger-border)',
+            }}
           >
             ■ Stop & Save
           </button>

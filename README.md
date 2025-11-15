@@ -37,12 +37,14 @@ A modern, custom-branded video conferencing application built on [LiveKit](https
 ### Steps
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/ndducnha/conf.git
    cd conf
    ```
 
 2. **Install dependencies**
+
    ```bash
    npm install
    # or
@@ -52,11 +54,13 @@ A modern, custom-branded video conferencing application built on [LiveKit](https
 3. **Configure environment variables**
 
    Copy `.env.example` to `.env.local`:
+
    ```bash
    cp .env.example .env.local
    ```
 
    Update `.env.local` with your LiveKit credentials:
+
    ```env
    LIVEKIT_API_KEY=your_api_key
    LIVEKIT_API_SECRET=your_api_secret
@@ -64,6 +68,7 @@ A modern, custom-branded video conferencing application built on [LiveKit](https
    ```
 
 4. **Start the development server**
+
    ```bash
    npm run dev
    # or
@@ -79,6 +84,7 @@ A modern, custom-branded video conferencing application built on [LiveKit](https
 For complete deployment instructions to VPS or Vercel, see **[DEPLOYMENT.md](./DEPLOYMENT.md)**.
 
 Quick deployment options:
+
 - **VPS**: Full control with PM2 + Nginx
 - **Vercel**: One-click deployment with automatic HTTPS
 
@@ -92,11 +98,13 @@ Quick deployment options:
 ## 📝 Environment Variables
 
 Required variables:
+
 - `LIVEKIT_API_KEY` - Your LiveKit API key
 - `LIVEKIT_API_SECRET` - Your LiveKit API secret
 - `LIVEKIT_URL` - Your LiveKit WebSocket URL
 
 Optional variables:
+
 - `NEXT_PUBLIC_SHOW_SETTINGS_MENU` - Enable advanced settings menu
 
 ## 🤝 Contributing

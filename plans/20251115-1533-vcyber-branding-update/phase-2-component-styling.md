@@ -22,21 +22,22 @@ Replace all inline rgba color values with CSS variable references. Maintain exis
 
 #### Change Set
 
-| Line | Current Color | Target Variable | Element |
-|------|---------------|-----------------|---------|
-| 126 | `rgba(100, 100, 100, 0.8)` | `rgba(255, 255, 255, 0.1)` | Menu button background |
-| 185 | `rgba(0,102,255,0.3)` | `var(--vcyber-blue-bg)` | Chat button |
-| 213 | `rgba(255,0,0,0.3)` | `var(--vcyber-danger-bg)` | Recording button |
-| 221 | `rgba(0,255,0,0.3)` | `var(--vcyber-success-bg)` | Copy link button |
-| 230 | `rgba(153,51,255,0.3)` | `var(--vcyber-purple-bg)` | Participants button |
-| 251 | `rgba(255,165,0,0.1)` | `var(--vcyber-warning-bg)` | Waiting room bg |
-| 252 | `rgba(255,165,0,0.3)` | `var(--vcyber-warning-border)` | Waiting room border |
-| 261 | `rgba(0,255,0,0.3)` | `var(--vcyber-success-bg)` | Approve button |
-| 265 | `rgba(255,0,0,0.3)` | `var(--vcyber-danger-bg)` | Deny button |
+| Line | Current Color              | Target Variable                | Element                |
+| ---- | -------------------------- | ------------------------------ | ---------------------- |
+| 126  | `rgba(100, 100, 100, 0.8)` | `rgba(255, 255, 255, 0.1)`     | Menu button background |
+| 185  | `rgba(0,102,255,0.3)`      | `var(--vcyber-blue-bg)`        | Chat button            |
+| 213  | `rgba(255,0,0,0.3)`        | `var(--vcyber-danger-bg)`      | Recording button       |
+| 221  | `rgba(0,255,0,0.3)`        | `var(--vcyber-success-bg)`     | Copy link button       |
+| 230  | `rgba(153,51,255,0.3)`     | `var(--vcyber-purple-bg)`      | Participants button    |
+| 251  | `rgba(255,165,0,0.1)`      | `var(--vcyber-warning-bg)`     | Waiting room bg        |
+| 252  | `rgba(255,165,0,0.3)`      | `var(--vcyber-warning-border)` | Waiting room border    |
+| 261  | `rgba(0,255,0,0.3)`        | `var(--vcyber-success-bg)`     | Approve button         |
+| 265  | `rgba(255,0,0,0.3)`        | `var(--vcyber-danger-bg)`      | Deny button            |
 
 #### Code Changes
 
 **Line 126 (Menu button):**
+
 ```tsx
 // BEFORE
 style={{
@@ -54,6 +55,7 @@ style={{
 ```
 
 **Line 185 (Chat button):**
+
 ```tsx
 // BEFORE
 style={{ width: '100%', padding: '0.75rem', textAlign: 'left', background: 'rgba(0,102,255,0.3)', position: 'relative' }}
@@ -65,6 +67,7 @@ style={{ width: '100%', padding: '0.75rem', textAlign: 'left', background: 'var(
 **Repeat pattern for remaining buttons** (lines 213, 221, 230, 261, 265)
 
 **Line 251-252 (Waiting room card):**
+
 ```tsx
 // BEFORE
 style={{
@@ -94,18 +97,19 @@ style={{
 
 #### Change Set
 
-| Line | Current Color | Target Variable | Element |
-|------|---------------|-----------------|---------|
-| 266 | `rgba(255,0,0,0.6)` | `var(--vcyber-danger-bg)` | Start recording button bg |
-| 267 | `rgba(255,0,0,0.8)` | `var(--vcyber-danger-border)` | Start recording button border |
-| 279 | `rgba(255,165,0,0.6)` | `var(--vcyber-warning-bg)` | Pause button |
-| 286 | `rgba(255,0,0,0.6)` | `var(--vcyber-danger-bg)` | Stop button (recording state) |
-| 298 | `rgba(0,255,0,0.6)` | `var(--vcyber-success-bg)` | Resume button |
-| 305 | `rgba(255,0,0,0.6)` | `var(--vcyber-danger-bg)` | Stop button (paused state) |
+| Line | Current Color         | Target Variable               | Element                       |
+| ---- | --------------------- | ----------------------------- | ----------------------------- |
+| 266  | `rgba(255,0,0,0.6)`   | `var(--vcyber-danger-bg)`     | Start recording button bg     |
+| 267  | `rgba(255,0,0,0.8)`   | `var(--vcyber-danger-border)` | Start recording button border |
+| 279  | `rgba(255,165,0,0.6)` | `var(--vcyber-warning-bg)`    | Pause button                  |
+| 286  | `rgba(255,0,0,0.6)`   | `var(--vcyber-danger-bg)`     | Stop button (recording state) |
+| 298  | `rgba(0,255,0,0.6)`   | `var(--vcyber-success-bg)`    | Resume button                 |
+| 305  | `rgba(255,0,0,0.6)`   | `var(--vcyber-danger-bg)`     | Stop button (paused state)    |
 
 #### Code Changes
 
 **Line 266-267 (Start recording button):**
+
 ```tsx
 // BEFORE
 style={{
@@ -127,12 +131,14 @@ style={{
 **Repeat pattern for remaining buttons** (lines 279, 286, 298, 305)
 
 **Special Case - Pause button (line 279):**
+
 ```tsx
 // AFTER
 style={{ width: '100%', padding: '0.5rem', background: 'var(--vcyber-warning-bg)' }}
 ```
 
 **Special Case - Resume button (line 298):**
+
 ```tsx
 // AFTER
 style={{ width: '100%', padding: '0.5rem', background: 'var(--vcyber-success-bg)' }}
@@ -147,19 +153,20 @@ style={{ width: '100%', padding: '0.5rem', background: 'var(--vcyber-success-bg)
 
 #### Change Set
 
-| Line | Current Color | Target Variable | Element |
-|------|---------------|-----------------|---------|
-| 116 | `rgba(153, 51, 255, 0.8)` | `var(--vcyber-purple-bg)` | Manage button |
-| 167 | `rgba(255,165,0,0.1)` | `var(--vcyber-warning-bg)` | Waiting room card bg |
-| 169 | `rgba(255,165,0,0.3)` | `var(--vcyber-warning-border)` | Waiting room card border |
-| 177 | `rgba(0,255,0,0.3)` | `var(--vcyber-success-bg)` | Approve button |
-| 183 | `rgba(255,0,0,0.3)` | `var(--vcyber-danger-bg)` | Deny button |
-| 228 | `rgba(255,0,0,0.3)` | `var(--vcyber-danger-bg)` | Kick button bg |
-| 229 | `rgba(255,0,0,0.5)` | `var(--vcyber-danger-border)` | Kick button border |
+| Line | Current Color             | Target Variable                | Element                  |
+| ---- | ------------------------- | ------------------------------ | ------------------------ |
+| 116  | `rgba(153, 51, 255, 0.8)` | `var(--vcyber-purple-bg)`      | Manage button            |
+| 167  | `rgba(255,165,0,0.1)`     | `var(--vcyber-warning-bg)`     | Waiting room card bg     |
+| 169  | `rgba(255,165,0,0.3)`     | `var(--vcyber-warning-border)` | Waiting room card border |
+| 177  | `rgba(0,255,0,0.3)`       | `var(--vcyber-success-bg)`     | Approve button           |
+| 183  | `rgba(255,0,0,0.3)`       | `var(--vcyber-danger-bg)`      | Deny button              |
+| 228  | `rgba(255,0,0,0.3)`       | `var(--vcyber-danger-bg)`      | Kick button bg           |
+| 229  | `rgba(255,0,0,0.5)`       | `var(--vcyber-danger-border)`  | Kick button border       |
 
 #### Code Changes
 
 **Line 116 (Manage button):**
+
 ```tsx
 // BEFORE
 style={{
@@ -197,17 +204,18 @@ style={{
 
 #### Change Set
 
-| Line | Current Color | Target Variable | Element |
-|------|---------------|-----------------|---------|
-| 290 | `rgba(0,102,255,0.1)` | `var(--vcyber-blue-bg)` | Received file card bg |
-| 292 | `rgba(0,102,255,0.3)` | `var(--vcyber-blue-border)` | Received file card border |
-| 310 | `rgba(0,255,0,0.3)` | `var(--vcyber-success-bg)` | Download button bg |
-| 311 | `rgba(0,255,0,0.5)` | `var(--vcyber-success-border)` | Download button border |
-| 328 | `rgba(0,102,255,0.1)` | `var(--vcyber-blue-bg)` | Selected file preview bg |
+| Line | Current Color         | Target Variable                | Element                   |
+| ---- | --------------------- | ------------------------------ | ------------------------- |
+| 290  | `rgba(0,102,255,0.1)` | `var(--vcyber-blue-bg)`        | Received file card bg     |
+| 292  | `rgba(0,102,255,0.3)` | `var(--vcyber-blue-border)`    | Received file card border |
+| 310  | `rgba(0,255,0,0.3)`   | `var(--vcyber-success-bg)`     | Download button bg        |
+| 311  | `rgba(0,255,0,0.5)`   | `var(--vcyber-success-border)` | Download button border    |
+| 328  | `rgba(0,102,255,0.1)` | `var(--vcyber-blue-bg)`        | Selected file preview bg  |
 
 #### Code Changes
 
 **Line 290-292 (Received file card):**
+
 ```tsx
 // BEFORE
 <div key={file.id} style={{
@@ -229,6 +237,7 @@ style={{
 ```
 
 **Line 310-311 (Download button):**
+
 ```tsx
 // BEFORE
 style={{
@@ -248,6 +257,7 @@ style={{
 ```
 
 **Line 328 (Selected file preview):**
+
 ```tsx
 // BEFORE
 style={{
@@ -277,6 +287,7 @@ style={{
 ## Testing Checklist (Per Component)
 
 ### Visual Verification
+
 - [ ] Component renders without visual regressions
 - [ ] Button colors match logo branding (cyan/blue/purple accents)
 - [ ] Status colors remain distinct (success=green, danger=red, warning=orange)
@@ -284,12 +295,14 @@ style={{
 - [ ] Active/pressed states work correctly
 
 ### Functional Verification
+
 - [ ] All button click handlers work (no event listener issues)
 - [ ] Modals open/close correctly
 - [ ] State changes reflect in UI (e.g., recording indicator, waiting room count)
 - [ ] No console errors
 
 ### Cross-Browser Verification
+
 - [ ] Chrome (latest)
 - [ ] Firefox (latest)
 - [ ] Safari (latest)
@@ -299,6 +312,7 @@ style={{
 ## Component-Specific Testing
 
 ### UnifiedMenu.tsx
+
 - [ ] Menu dropdown opens/closes
 - [ ] Chat button opens chat panel
 - [ ] Recording button opens recording controls
@@ -308,6 +322,7 @@ style={{
 - [ ] Notification badge shows correct count
 
 ### RecordingControls.tsx
+
 - [ ] Start recording button initiates recording
 - [ ] Pause button pauses recording
 - [ ] Resume button resumes recording
@@ -316,6 +331,7 @@ style={{
 - [ ] Modal close button works
 
 ### ParticipantManager.tsx
+
 - [ ] Manage button shows/hides panel
 - [ ] Waiting room list updates correctly
 - [ ] Approve button admits participant
@@ -324,6 +340,7 @@ style={{
 - [ ] Panel scrolls if >6 participants
 
 ### EnhancedChat.tsx
+
 - [ ] File upload button opens file selector
 - [ ] File preview shows selected file
 - [ ] Send button sends message/file
@@ -347,6 +364,7 @@ style={{
 ## Rollback Instructions
 
 **Per-file rollback:**
+
 ```bash
 cd /Users/tony/Documents/Vcyber/conf
 git checkout HEAD -- lib/UnifiedMenu.tsx
@@ -363,19 +381,23 @@ If only one component has issues, revert that file individually.
 ## Common Issues & Solutions
 
 ### Issue 1: Colors Not Updating
+
 **Symptom:** Components still show old rgba colors
 **Cause:** Browser cache or dev server not reloading
 **Solution:**
+
 1. Hard refresh browser (Cmd+Shift+R)
 2. Restart Next.js dev server: `npm run dev`
 3. Clear `.next` cache: `rm -rf .next && npm run dev`
 
 ### Issue 2: CSS Variable Undefined
+
 **Symptom:** Element has no background color (transparent)
 **Cause:** Phase 1 CSS variables not loaded
 **Solution:** Verify `styles/globals.css` contains :root block with variables
 
 ### Issue 3: Button Background Too Transparent
+
 **Symptom:** Button barely visible, poor contrast
 **Cause:** Alpha value (0.1) too low for some backgrounds
 **Solution:** Increase opacity to 0.2 or 0.3:

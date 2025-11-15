@@ -9,8 +9,7 @@ export const metadata: Metadata = {
     default: 'Vcyber | Video Conferencing',
     template: '%s',
   },
-  description:
-    'Vcyber is a modern video conferencing platform built for seamless communication.',
+  description: 'Vcyber is a modern video conferencing platform built for seamless communication.',
   icons: {
     icon: {
       rel: 'icon',

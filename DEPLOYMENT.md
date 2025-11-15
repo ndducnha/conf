@@ -170,26 +170,31 @@ pm2 restart vcyber
 ## 📊 PM2 Management Commands
 
 ### View Application Status
+
 ```bash
 pm2 status
 ```
 
 ### View Logs
+
 ```bash
 pm2 logs vcyber
 ```
 
 ### Restart Application
+
 ```bash
 pm2 restart vcyber
 ```
 
 ### Stop Application
+
 ```bash
 pm2 stop vcyber
 ```
 
 ### Remove Application
+
 ```bash
 pm2 delete vcyber
 ```
@@ -222,6 +227,7 @@ vercel
 ### Step 4: Add Environment Variables
 
 In the Vercel dashboard:
+
 1. Go to your project settings
 2. Navigate to Environment Variables
 3. Add:
@@ -236,6 +242,7 @@ vercel --prod
 ```
 
 **Benefits of Vercel:**
+
 - ✅ Automatic HTTPS
 - ✅ Global CDN
 - ✅ Automatic deployments on git push
@@ -247,6 +254,7 @@ vercel --prod
 ## 🔧 Troubleshooting
 
 ### Port 3000 Already in Use
+
 ```bash
 # Find process using port 3000
 sudo lsof -i :3000
@@ -255,6 +263,7 @@ sudo kill -9 <PID>
 ```
 
 ### Application Won't Start
+
 ```bash
 # Check logs
 pm2 logs vcyber
@@ -263,6 +272,7 @@ cat .env.local
 ```
 
 ### Nginx Configuration Error
+
 ```bash
 # Test configuration
 sudo nginx -t
@@ -271,6 +281,7 @@ sudo tail -f /var/log/nginx/error.log
 ```
 
 ### Can't Join Meeting Rooms
+
 - Verify LiveKit credentials in `.env.local`
 - Check that LiveKit URL is correct (should start with `wss://`)
 - Ensure firewall allows outbound WebSocket connections
@@ -303,6 +314,7 @@ sudo tail -f /var/log/nginx/error.log
 For LiveKit-specific issues, visit: https://docs.livekit.io
 
 For deployment issues, check:
+
 - Application logs: `pm2 logs vcyber`
 - Nginx logs: `sudo tail -f /var/log/nginx/error.log`
 - System logs: `journalctl -xe`

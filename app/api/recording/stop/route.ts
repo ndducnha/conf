@@ -19,7 +19,8 @@ export async function POST(request: NextRequest) {
 
     metadata.endTime = new Date().toISOString();
     metadata.status = 'completed';
-    metadata.duration = new Date(metadata.endTime).getTime() - new Date(metadata.startTime).getTime();
+    metadata.duration =
+      new Date(metadata.endTime).getTime() - new Date(metadata.startTime).getTime();
     metadata.videoFile = `${recordingId}.webm`;
     metadata.videoPath = `/recordings/${recordingId}.webm`;
 
@@ -32,9 +33,6 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error('Error stopping recording:', error);
-    return NextResponse.json(
-      { error: 'Failed to stop recording' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to stop recording' }, { status: 500 });
   }
 }

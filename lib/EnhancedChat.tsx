@@ -69,7 +69,8 @@ export function EnhancedChat({ onNewMessage }: EnhancedChatProps = {}) {
     if (chatMessages.length > prevMessageCountRef.current && prevMessageCountRef.current > 0) {
       const newMessage = chatMessages[chatMessages.length - 1];
       const isOwnMessage = newMessage.from?.identity === room.localParticipant.identity;
-      const isFileMessage = newMessage.message?.includes('📎') || newMessage.message?.includes('Sent file');
+      const isFileMessage =
+        newMessage.message?.includes('📎') || newMessage.message?.includes('Sent file');
 
       // Only notify for other people's text messages
       if (!isOwnMessage && !isFileMessage) {
@@ -79,7 +80,8 @@ export function EnhancedChat({ onNewMessage }: EnhancedChatProps = {}) {
         const timeSinceLastNotification = now - lastNotificationTime;
 
         // Check rate limiting AND window focus
-        const shouldNotify = timeSinceLastNotification >= NOTIFICATION_THROTTLE_MS && !isWindowFocused;
+        const shouldNotify =
+          timeSinceLastNotification >= NOTIFICATION_THROTTLE_MS && !isWindowFocused;
 
         if (shouldNotify) {
           // Update last notification time
@@ -89,10 +91,13 @@ export function EnhancedChat({ onNewMessage }: EnhancedChatProps = {}) {
           onNewMessage?.();
 
           setTimeout(() => {
-            toast(`💬 ${newMessage.from?.name || newMessage.from?.identity || 'Someone'}: ${newMessage.message}`, {
-              duration: 4000,
-              position: 'top-right',
-            });
+            toast(
+              `💬 ${newMessage.from?.name || newMessage.from?.identity || 'Someone'}: ${newMessage.message}`,
+              {
+                duration: 4000,
+                position: 'top-right',
+              },
+            );
           }, 100);
         }
       }
@@ -101,7 +106,9 @@ export function EnhancedChat({ onNewMessage }: EnhancedChatProps = {}) {
   }, [chatMessages, receivedFiles, room.localParticipant, onNewMessage, isWindowFocused]);
 
   // Handle incoming files via data channel (with chunking support)
-  const [fileChunks, setFileChunks] = React.useState<Map<string, { metadata: any; chunks: string[] }>>(new Map());
+  const [fileChunks, setFileChunks] = React.useState<
+    Map<string, { metadata: any; chunks: string[] }>
+  >(new Map());
   const [pendingFileNotification, setPendingFileNotification] = React.useState<string | null>(null);
 
   // Show file notification separately to avoid setState during render
@@ -117,7 +124,7 @@ export function EnhancedChat({ onNewMessage }: EnhancedChatProps = {}) {
       payload: Uint8Array,
       participant?: any,
       kind?: any,
-      topic?: string
+      topic?: string,
     ) => {
       if (topic === 'file-transfer') {
         try {
@@ -126,7 +133,7 @@ export function EnhancedChat({ onNewMessage }: EnhancedChatProps = {}) {
 
           if (data.type === 'file-metadata') {
             // Initialize file reception
-            setFileChunks(prev => {
+            setFileChunks((prev) => {
               const newMap = new Map(prev);
               newMap.set(data.fileId, {
                 metadata: data,
@@ -136,7 +143,7 @@ export function EnhancedChat({ onNewMessage }: EnhancedChatProps = {}) {
             });
           } else if (data.type === 'file-chunk') {
             // Receive chunk
-            setFileChunks(prev => {
+            setFileChunks((prev) => {
               const newMap = new Map(prev);
               const fileData = newMap.get(data.fileId);
 
@@ -144,7 +151,7 @@ export function EnhancedChat({ onNewMessage }: EnhancedChatProps = {}) {
                 fileData.chunks[data.chunkIndex] = data.data;
 
                 // Check if all chunks received
-                if (fileData.chunks.every(chunk => chunk !== null)) {
+                if (fileData.chunks.every((chunk) => chunk !== null)) {
                   // Reconstruct file
                   const base64 = fileData.chunks.join('');
                   const byteCharacters = atob(base64);
@@ -164,7 +171,7 @@ export function EnhancedChat({ onNewMessage }: EnhancedChatProps = {}) {
                     blob,
                   };
 
-                  setReceivedFiles(prev => [...prev, fileMessage]);
+                  setReceivedFiles((prev) => [...prev, fileMessage]);
                   setPendingFileNotification(fileData.metadata.name);
 
                   // Clean up
@@ -228,10 +235,10 @@ export function EnhancedChat({ onNewMessage }: EnhancedChatProps = {}) {
         };
 
         const encoder = new TextEncoder();
-        await room.localParticipant.publishData(
-          encoder.encode(JSON.stringify(metadata)),
-          { reliable: true, topic: 'file-transfer' }
-        );
+        await room.localParticipant.publishData(encoder.encode(JSON.stringify(metadata)), {
+          reliable: true,
+          topic: 'file-transfer',
+        });
 
         // Send file in chunks
         for (let i = 0; i < totalChunks; i++) {
@@ -247,13 +254,13 @@ export function EnhancedChat({ onNewMessage }: EnhancedChatProps = {}) {
             data: chunk,
           };
 
-          await room.localParticipant.publishData(
-            encoder.encode(JSON.stringify(chunkData)),
-            { reliable: true, topic: 'file-transfer' }
-          );
+          await room.localParticipant.publishData(encoder.encode(JSON.stringify(chunkData)), {
+            reliable: true,
+            topic: 'file-transfer',
+          });
 
           // Small delay between chunks to avoid overwhelming the connection
-          await new Promise(resolve => setTimeout(resolve, 10));
+          await new Promise((resolve) => setTimeout(resolve, 10));
         }
 
         await send(`📎 Sent file: ${shortName}`);
@@ -317,24 +324,37 @@ export function EnhancedChat({ onNewMessage }: EnhancedChatProps = {}) {
       <div style={{ flex: 1, overflowY: 'auto', padding: '1rem' }}>
         {chatMessages.map((msg, idx) => (
           <div key={idx} style={{ marginBottom: '0.75rem' }}>
-            <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.6)', marginBottom: '0.25rem' }}>
+            <div
+              style={{
+                fontSize: '0.75rem',
+                color: 'rgba(255,255,255,0.6)',
+                marginBottom: '0.25rem',
+              }}
+            >
               {msg.from?.identity || 'Unknown'}
             </div>
-            <div style={{ color: 'white' }}>
-              {msg.message}
-            </div>
+            <div style={{ color: 'white' }}>{msg.message}</div>
           </div>
         ))}
 
         {receivedFiles.map((file) => (
-          <div key={file.id} style={{
-            marginBottom: '0.75rem',
-            padding: '0.75rem',
-            background: 'var(--vcyber-blue-bg)',
-            borderRadius: '0.5rem',
-            border: '1px solid var(--vcyber-blue-border)',
-          }}>
-            <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.6)', marginBottom: '0.5rem' }}>
+          <div
+            key={file.id}
+            style={{
+              marginBottom: '0.75rem',
+              padding: '0.75rem',
+              background: 'var(--vcyber-blue-bg)',
+              borderRadius: '0.5rem',
+              border: '1px solid var(--vcyber-blue-border)',
+            }}
+          >
+            <div
+              style={{
+                fontSize: '0.75rem',
+                color: 'rgba(255,255,255,0.6)',
+                marginBottom: '0.5rem',
+              }}
+            >
               {file.from}
             </div>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -363,17 +383,22 @@ export function EnhancedChat({ onNewMessage }: EnhancedChatProps = {}) {
         <div ref={messagesEndRef} />
       </div>
 
-      <form onSubmit={handleSendMessage} style={{ padding: '1rem', borderTop: '1px solid rgba(255,255,255,0.15)' }}>
+      <form
+        onSubmit={handleSendMessage}
+        style={{ padding: '1rem', borderTop: '1px solid rgba(255,255,255,0.15)' }}
+      >
         {selectedFile && (
-          <div style={{
-            marginBottom: '0.5rem',
-            padding: '0.5rem',
-            background: 'var(--vcyber-blue-bg)',
-            borderRadius: '0.25rem',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center'
-          }}>
+          <div
+            style={{
+              marginBottom: '0.5rem',
+              padding: '0.5rem',
+              background: 'var(--vcyber-blue-bg)',
+              borderRadius: '0.25rem',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}
+          >
             <span style={{ fontSize: '0.875rem' }}>
               {selectedFile.name} ({(selectedFile.size / 1024).toFixed(2)} KB)
             </span>

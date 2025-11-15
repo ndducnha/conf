@@ -84,7 +84,13 @@ export function PageClientImpl(props: {
       {connectionDetails === undefined || preJoinChoices === undefined ? (
         <div style={{ display: 'grid', placeItems: 'center', height: '100%' }}>
           <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-            <img src="/images/logo.jpg" alt="Vcyber" width="120" height="120" style={{ borderRadius: '12px', marginBottom: '1rem' }} />
+            <img
+              src="/images/logo.jpg"
+              alt="Vcyber"
+              width="120"
+              height="120"
+              style={{ borderRadius: '12px', marginBottom: '1rem' }}
+            />
             <h2 style={{ margin: 0, color: 'white' }}>Vcyber</h2>
           </div>
           <PreJoin
@@ -190,7 +196,7 @@ function VideoConferenceComponent(props: {
       payload: Uint8Array,
       participant?: any,
       kind?: any,
-      topic?: string
+      topic?: string,
     ) => {
       try {
         const decoder = new TextDecoder();
@@ -236,11 +242,13 @@ function VideoConferenceComponent(props: {
           // Send join request for waiting room (unless you're likely the first/host)
           // We'll send the request and let the host logic handle it
           const encoder = new TextEncoder();
-          const joinRequest = encoder.encode(JSON.stringify({
-            action: 'join-request',
-            identity: room.localParticipant.identity,
-            name: props.userChoices.username,
-          }));
+          const joinRequest = encoder.encode(
+            JSON.stringify({
+              action: 'join-request',
+              identity: room.localParticipant.identity,
+              name: props.userChoices.username,
+            }),
+          );
 
           // Wait a moment to let other participants load, then send join request
           setTimeout(async () => {
@@ -303,15 +311,23 @@ function VideoConferenceComponent(props: {
     <div className="lk-room-container" style={{ position: 'relative' }}>
       <RoomContext.Provider value={room}>
         {waitingForApproval ? (
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            height: '100vh',
-            flexDirection: 'column',
-            gap: '1rem',
-          }}>
-            <img src="/images/logo.jpg" alt="Vcyber" width="120" height="120" style={{ borderRadius: '12px', marginBottom: '1rem' }} />
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              height: '100vh',
+              flexDirection: 'column',
+              gap: '1rem',
+            }}
+          >
+            <img
+              src="/images/logo.jpg"
+              alt="Vcyber"
+              width="120"
+              height="120"
+              style={{ borderRadius: '12px', marginBottom: '1rem' }}
+            />
             <h2 style={{ color: 'white' }}>Vcyber</h2>
             <div style={{ fontSize: '2rem' }}>⏳</div>
             <h3>Waiting for host approval...</h3>
@@ -342,7 +358,7 @@ function CustomVideoConferenceLayout() {
       { source: Track.Source.Camera, withPlaceholder: true },
       { source: Track.Source.ScreenShare, withPlaceholder: false },
     ],
-    { onlySubscribed: false }
+    { onlySubscribed: false },
   );
 
   const handleOpenChat = React.useCallback(() => {
@@ -352,7 +368,7 @@ function CustomVideoConferenceLayout() {
 
   const handleNewMessage = React.useCallback(() => {
     if (!showChat) {
-      setUnreadMessages(prev => prev + 1);
+      setUnreadMessages((prev) => prev + 1);
     }
   }, [showChat]);
 
@@ -365,7 +381,15 @@ function CustomVideoConferenceLayout() {
               <ParticipantTile />
             </GridLayout>
           </div>
-          <div style={{ padding: '1rem', background: 'rgba(0, 0, 0, 0.5)', display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+          <div
+            style={{
+              padding: '1rem',
+              background: 'rgba(0, 0, 0, 0.5)',
+              display: 'flex',
+              gap: '0.5rem',
+              alignItems: 'center',
+            }}
+          >
             <div style={{ flex: 1 }}>
               <ControlBar variation="verbose" />
             </div>
@@ -388,13 +412,15 @@ function CustomVideoConferenceLayout() {
               flexDirection: 'column',
             }}
           >
-            <div style={{
-              padding: '1rem',
-              borderBottom: '1px solid rgba(255, 255, 255, 0.15)',
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center'
-            }}>
+            <div
+              style={{
+                padding: '1rem',
+                borderBottom: '1px solid rgba(255, 255, 255, 0.15)',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}
+            >
               <h3 style={{ margin: 0 }}>Chat</h3>
               <button
                 onClick={() => setShowChat(false)}
@@ -405,7 +431,7 @@ function CustomVideoConferenceLayout() {
                   color: 'white',
                   cursor: 'pointer',
                   fontSize: '1.5rem',
-                  padding: '0 0.5rem'
+                  padding: '0 0.5rem',
                 }}
               >
                 ×

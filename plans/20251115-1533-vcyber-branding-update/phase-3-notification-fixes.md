@@ -21,6 +21,7 @@ Implement window focus detection, rate limiting, audio notifications, and user p
 **Location:** After imports, before component definition
 
 **Add Hook:**
+
 ```typescript
 // Custom hook for window focus detection
 const useWindowFocus = () => {
@@ -50,6 +51,7 @@ const useWindowFocus = () => {
 ```
 
 **Usage in Component:**
+
 ```typescript
 export function EnhancedChat({ onNewMessage }: EnhancedChatProps = {}) {
   const { send, chatMessages } = useChat();
@@ -71,7 +73,8 @@ export function EnhancedChat({ onNewMessage }: EnhancedChatProps = {}) {
 if (chatMessages.length > prevMessageCountRef.current && prevMessageCountRef.current > 0) {
   const newMessage = chatMessages[chatMessages.length - 1];
   const isOwnMessage = newMessage.from?.identity === room.localParticipant.identity;
-  const isFileMessage = newMessage.message?.includes('📎') || newMessage.message?.includes('Sent file');
+  const isFileMessage =
+    newMessage.message?.includes('📎') || newMessage.message?.includes('Sent file');
 
   // Only notify for other people's text messages
   if (!isOwnMessage && !isFileMessage) {
@@ -79,23 +82,31 @@ if (chatMessages.length > prevMessageCountRef.current && prevMessageCountRef.cur
     onNewMessage?.();
 
     setTimeout(() => {
-      toast(`💬 ${newMessage.from?.name || newMessage.from?.identity || 'Someone'}: ${newMessage.message}`, {
-        duration: 4000,
-        position: 'top-right',
-      });
+      toast(
+        `💬 ${newMessage.from?.name || newMessage.from?.identity || 'Someone'}: ${newMessage.message}`,
+        {
+          duration: 4000,
+          position: 'top-right',
+        },
+      );
     }, 100);
   }
 }
 ```
 
 **Updated:**
+
 ```typescript
-if (chatMessages.length > prevMessageCountRef.current &&
-    prevMessageCountRef.current > 0 &&
-    !isWindowFocused) { // ADD THIS CONDITION
+if (
+  chatMessages.length > prevMessageCountRef.current &&
+  prevMessageCountRef.current > 0 &&
+  !isWindowFocused
+) {
+  // ADD THIS CONDITION
   const newMessage = chatMessages[chatMessages.length - 1];
   const isOwnMessage = newMessage.from?.identity === room.localParticipant.identity;
-  const isFileMessage = newMessage.message?.includes('📎') || newMessage.message?.includes('Sent file');
+  const isFileMessage =
+    newMessage.message?.includes('📎') || newMessage.message?.includes('Sent file');
 
   // Only notify for other people's text messages when window not focused
   if (!isOwnMessage && !isFileMessage) {
@@ -103,10 +114,13 @@ if (chatMessages.length > prevMessageCountRef.current &&
     onNewMessage?.();
 
     setTimeout(() => {
-      toast(`💬 ${newMessage.from?.name || newMessage.from?.identity || 'Someone'}: ${newMessage.message}`, {
-        duration: 4000,
-        position: 'top-right',
-      });
+      toast(
+        `💬 ${newMessage.from?.name || newMessage.from?.identity || 'Someone'}: ${newMessage.message}`,
+        {
+          duration: 4000,
+          position: 'top-right',
+        },
+      );
     }, 100);
   }
 }
@@ -122,19 +136,24 @@ if (chatMessages.length > prevMessageCountRef.current &&
 **Location:** After existing state declarations (after line 26)
 
 **Add State:**
+
 ```typescript
 const [lastNotificationTime, setLastNotificationTime] = React.useState<Record<string, number>>({});
 const NOTIFICATION_THROTTLE_MS = 3000; // 3-second minimum between notifications per sender
 ```
 
 **Update Notification Logic:**
+
 ```typescript
-if (chatMessages.length > prevMessageCountRef.current &&
-    prevMessageCountRef.current > 0 &&
-    !isWindowFocused) {
+if (
+  chatMessages.length > prevMessageCountRef.current &&
+  prevMessageCountRef.current > 0 &&
+  !isWindowFocused
+) {
   const newMessage = chatMessages[chatMessages.length - 1];
   const isOwnMessage = newMessage.from?.identity === room.localParticipant.identity;
-  const isFileMessage = newMessage.message?.includes('📎') || newMessage.message?.includes('Sent file');
+  const isFileMessage =
+    newMessage.message?.includes('📎') || newMessage.message?.includes('Sent file');
   const senderId = newMessage.from?.identity || 'unknown';
 
   // Only notify for other people's text messages when window not focused
@@ -148,16 +167,19 @@ if (chatMessages.length > prevMessageCountRef.current &&
       onNewMessage?.();
 
       setTimeout(() => {
-        toast(`💬 ${newMessage.from?.name || newMessage.from?.identity || 'Someone'}: ${newMessage.message}`, {
-          duration: 4000,
-          position: 'top-right',
-        });
+        toast(
+          `💬 ${newMessage.from?.name || newMessage.from?.identity || 'Someone'}: ${newMessage.message}`,
+          {
+            duration: 4000,
+            position: 'top-right',
+          },
+        );
       }, 100);
 
       // Update last notification time for this sender
-      setLastNotificationTime(prev => ({
+      setLastNotificationTime((prev) => ({
         ...prev,
-        [senderId]: now
+        [senderId]: now,
       }));
     }
   }
@@ -174,6 +196,7 @@ if (chatMessages.length > prevMessageCountRef.current &&
 **Location:** After `useWindowFocus` hook definition
 
 **Add Hook:**
+
 ```typescript
 // Custom hook for notification audio
 const useNotificationAudio = () => {
@@ -191,7 +214,7 @@ const useNotificationAudio = () => {
   const playNotificationSound = React.useCallback(() => {
     if (audioRef.current && audioEnabled) {
       audioRef.current.currentTime = 0; // Reset to start
-      audioRef.current.play().catch(err => {
+      audioRef.current.play().catch((err) => {
         // Browser autoplay policy blocked audio
         console.debug('Audio notification blocked (user gesture required):', err);
       });
@@ -203,6 +226,7 @@ const useNotificationAudio = () => {
 ```
 
 **Usage in Component:**
+
 ```typescript
 export function EnhancedChat({ onNewMessage }: EnhancedChatProps = {}) {
   const { send, chatMessages } = useChat();
@@ -213,25 +237,29 @@ export function EnhancedChat({ onNewMessage }: EnhancedChatProps = {}) {
 ```
 
 **Update Notification Logic:**
+
 ```typescript
 if (now - senderLastNotif > NOTIFICATION_THROTTLE_MS) {
   // Trigger the notification badge
   onNewMessage?.();
 
   setTimeout(() => {
-    toast(`💬 ${newMessage.from?.name || newMessage.from?.identity || 'Someone'}: ${newMessage.message}`, {
-      duration: 4000,
-      position: 'top-right',
-    });
+    toast(
+      `💬 ${newMessage.from?.name || newMessage.from?.identity || 'Someone'}: ${newMessage.message}`,
+      {
+        duration: 4000,
+        position: 'top-right',
+      },
+    );
 
     // Play audio notification
     playNotificationSound(); // ADD THIS
   }, 100);
 
   // Update last notification time for this sender
-  setLastNotificationTime(prev => ({
+  setLastNotificationTime((prev) => ({
     ...prev,
-    [senderId]: now
+    [senderId]: now,
   }));
 }
 ```
@@ -246,6 +274,7 @@ if (now - senderLastNotif > NOTIFICATION_THROTTLE_MS) {
 **Location:** After existing state declarations
 
 **Add State:**
+
 ```typescript
 interface NotificationPrefs {
   enabled: boolean;
@@ -279,6 +308,7 @@ React.useEffect(() => {
 ```
 
 **Update Hook Initialization:**
+
 ```typescript
 const { playNotificationSound, audioEnabled, setAudioEnabled } = useNotificationAudio();
 
@@ -289,11 +319,15 @@ React.useEffect(() => {
 ```
 
 **Update Notification Condition:**
+
 ```typescript
-if (chatMessages.length > prevMessageCountRef.current &&
-    prevMessageCountRef.current > 0 &&
-    !isWindowFocused &&
-    notificationPrefs.enabled) { // ADD THIS
+if (
+  chatMessages.length > prevMessageCountRef.current &&
+  prevMessageCountRef.current > 0 &&
+  !isWindowFocused &&
+  notificationPrefs.enabled
+) {
+  // ADD THIS
   // ... rest of notification logic
 
   // Use dynamic throttle value
@@ -304,8 +338,11 @@ if (chatMessages.length > prevMessageCountRef.current &&
 ```
 
 **Add Settings UI (in JSX, before closing chat div):**
+
 ```tsx
-{/* Notification Settings Toggle */}
+{
+  /* Notification Settings Toggle */
+}
 <div style={{ borderTop: '1px solid rgba(255,255,255,0.15)', padding: '0.5rem' }}>
   <button
     onClick={() => setShowSettings(!showSettings)}
@@ -316,32 +353,57 @@ if (chatMessages.length > prevMessageCountRef.current &&
   </button>
 
   {showSettings && (
-    <div style={{ marginTop: '0.5rem', padding: '0.5rem', background: 'rgba(255,255,255,0.05)', borderRadius: '0.25rem' }}>
-      <label style={{ display: 'flex', alignItems: 'center', marginBottom: '0.5rem', cursor: 'pointer' }}>
+    <div
+      style={{
+        marginTop: '0.5rem',
+        padding: '0.5rem',
+        background: 'rgba(255,255,255,0.05)',
+        borderRadius: '0.25rem',
+      }}
+    >
+      <label
+        style={{ display: 'flex', alignItems: 'center', marginBottom: '0.5rem', cursor: 'pointer' }}
+      >
         <input
           type="checkbox"
           checked={notificationPrefs.enabled}
-          onChange={(e) => setNotificationPrefs(prev => ({ ...prev, enabled: e.target.checked }))}
+          onChange={(e) => setNotificationPrefs((prev) => ({ ...prev, enabled: e.target.checked }))}
           style={{ marginRight: '0.5rem' }}
         />
         <span style={{ fontSize: '0.875rem' }}>Enable notifications</span>
       </label>
 
-      <label style={{ display: 'flex', alignItems: 'center', marginBottom: '0.5rem', cursor: 'pointer' }}>
+      <label
+        style={{ display: 'flex', alignItems: 'center', marginBottom: '0.5rem', cursor: 'pointer' }}
+      >
         <input
           type="checkbox"
           checked={notificationPrefs.soundEnabled}
-          onChange={(e) => setNotificationPrefs(prev => ({ ...prev, soundEnabled: e.target.checked }))}
+          onChange={(e) =>
+            setNotificationPrefs((prev) => ({ ...prev, soundEnabled: e.target.checked }))
+          }
           disabled={!notificationPrefs.enabled}
           style={{ marginRight: '0.5rem' }}
         />
-        <span style={{ fontSize: '0.875rem', color: !notificationPrefs.enabled ? 'rgba(255,255,255,0.3)' : 'inherit' }}>
+        <span
+          style={{
+            fontSize: '0.875rem',
+            color: !notificationPrefs.enabled ? 'rgba(255,255,255,0.3)' : 'inherit',
+          }}
+        >
           Sound alerts
         </span>
       </label>
 
       <div style={{ marginTop: '0.5rem' }}>
-        <label style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.6)', display: 'block', marginBottom: '0.25rem' }}>
+        <label
+          style={{
+            fontSize: '0.75rem',
+            color: 'rgba(255,255,255,0.6)',
+            display: 'block',
+            marginBottom: '0.25rem',
+          }}
+        >
           Throttle (seconds):
         </label>
         <input
@@ -349,10 +411,12 @@ if (chatMessages.length > prevMessageCountRef.current &&
           min="1"
           max="10"
           value={notificationPrefs.throttleMs / 1000}
-          onChange={(e) => setNotificationPrefs(prev => ({
-            ...prev,
-            throttleMs: parseInt(e.target.value) * 1000
-          }))}
+          onChange={(e) =>
+            setNotificationPrefs((prev) => ({
+              ...prev,
+              throttleMs: parseInt(e.target.value) * 1000,
+            }))
+          }
           disabled={!notificationPrefs.enabled}
           style={{
             width: '100%',
@@ -366,7 +430,7 @@ if (chatMessages.length > prevMessageCountRef.current &&
       </div>
     </div>
   )}
-</div>
+</div>;
 ```
 
 **Impact:** User control over notification behavior (fixes Issue #4 from research).
@@ -378,11 +442,13 @@ if (chatMessages.length > prevMessageCountRef.current &&
 **Task:** Obtain short notification sound (1-2 seconds, <50KB)
 
 **Sources (CC0/Public Domain):**
+
 1. **Freesound.org:** https://freesound.org/search/?q=notification&f=license:%22Creative+Commons+0%22
 2. **Pixabay Audio:** https://pixabay.com/sound-effects/search/notification/
 3. **Zapsplat (free tier):** https://www.zapsplat.com/sound-effect-category/notification-alerts/
 
 **Recommended Sound Characteristics:**
+
 - Duration: 0.5-1.5 seconds
 - Format: MP3 (best browser support)
 - Bitrate: 64-128kbps (keeps file size <50KB)
@@ -420,6 +486,7 @@ const generateNotificationBeep = () => {
 ## Testing Checklist
 
 ### Window Focus Detection
+
 - [ ] Open chat in browser tab
 - [ ] Send message from another device/user
 - [ ] Verify NO notification while tab focused
@@ -428,6 +495,7 @@ const generateNotificationBeep = () => {
 - [ ] Verify notification appears
 
 ### Rate Limiting
+
 - [ ] Set throttle to 3 seconds
 - [ ] Send 5 rapid messages from same sender (1/second)
 - [ ] Verify only 1 notification appears (first message)
@@ -435,6 +503,7 @@ const generateNotificationBeep = () => {
 - [ ] Verify notification appears (throttle window passed)
 
 ### Audio Notifications
+
 - [ ] Enable sound in settings
 - [ ] Blur window, receive message
 - [ ] Verify audio plays with toast notification
@@ -443,6 +512,7 @@ const generateNotificationBeep = () => {
 - [ ] Verify toast appears but no audio
 
 ### User Preferences
+
 - [ ] Toggle "Enable notifications" off
 - [ ] Blur window, receive message
 - [ ] Verify NO notification appears
@@ -479,6 +549,7 @@ rm public/notification.mp3
 ```
 
 **Partial rollback (keep color changes from Phase 2):**
+
 1. Use git diff to view changes
 2. Manually revert only notification-related code
 3. Keep CSS variable color updates
@@ -488,21 +559,27 @@ rm public/notification.mp3
 ## Common Issues & Solutions
 
 ### Issue 1: Audio Doesn't Play
+
 **Symptom:** No sound when notification appears
 **Cause:** Browser autoplay policy blocks audio without user gesture
 **Solution:** Audio plays after first user interaction (chat send, button click). Display one-time prompt:
+
 ```tsx
-{audioBlocked && (
-  <div style={{ padding: '0.5rem', background: 'rgba(255,165,0,0.1)', fontSize: '0.75rem' }}>
-    Click anywhere to enable sound notifications
-  </div>
-)}
+{
+  audioBlocked && (
+    <div style={{ padding: '0.5rem', background: 'rgba(255,165,0,0.1)', fontSize: '0.75rem' }}>
+      Click anywhere to enable sound notifications
+    </div>
+  );
+}
 ```
 
 ### Issue 2: Notifications Still Show When Focused
+
 **Symptom:** Toast appears even when tab active
 **Cause:** `document.hasFocus()` returns false in certain browsers
 **Solution:** Add visibility API check:
+
 ```typescript
 const isWindowFocused = useWindowFocus();
 const isDocumentVisible = document.visibilityState === 'visible';
@@ -510,17 +587,20 @@ const shouldNotify = !isWindowFocused || !isDocumentVisible;
 ```
 
 ### Issue 3: Throttle Not Working
+
 **Symptom:** Multiple notifications from same sender
 **Cause:** State update race condition
 **Solution:** Use functional setState:
+
 ```typescript
-setLastNotificationTime(prev => ({
+setLastNotificationTime((prev) => ({
   ...prev,
-  [senderId]: Date.now() // Use fresh timestamp
+  [senderId]: Date.now(), // Use fresh timestamp
 }));
 ```
 
 ### Issue 4: Settings Don't Persist
+
 **Symptom:** Preferences reset on page refresh
 **Cause:** localStorage not saving (SSR issue)
 **Solution:** Verify `typeof window !== 'undefined'` check present before localStorage access
@@ -545,9 +625,7 @@ Consider adding ARIA live region for chat messages:
 <div role="log" aria-live="polite" aria-label="Chat messages">
   {chatMessages.map((msg, idx) => (
     <div key={idx} role="article">
-      <div aria-label={`Message from ${msg.from?.identity}`}>
-        {msg.message}
-      </div>
+      <div aria-label={`Message from ${msg.from?.identity}`}>{msg.message}</div>
     </div>
   ))}
 </div>

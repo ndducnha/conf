@@ -13,8 +13,8 @@ export function ParticipantManager() {
 
   const isHost = React.useMemo(() => {
     // First participant to join is the host
-    const sorted = [...participants].sort((a, b) =>
-      (a.joinedAt?.getTime() || 0) - (b.joinedAt?.getTime() || 0)
+    const sorted = [...participants].sort(
+      (a, b) => (a.joinedAt?.getTime() || 0) - (b.joinedAt?.getTime() || 0),
     );
     return sorted[0]?.identity === room.localParticipant.identity;
   }, [participants, room.localParticipant]);
@@ -25,14 +25,14 @@ export function ParticipantManager() {
       payload: Uint8Array,
       participant?: any,
       kind?: any,
-      topic?: string
+      topic?: string,
     ) => {
       if (topic === 'waiting-room-request' && isHost) {
         const decoder = new TextDecoder();
         const data = JSON.parse(decoder.decode(payload));
 
         if (data.action === 'join-request') {
-          setWaitingParticipants(prev => [...prev, data.identity]);
+          setWaitingParticipants((prev) => [...prev, data.identity]);
           toast(`${data.name} wants to join`, {
             duration: 10000,
           });
@@ -48,43 +48,49 @@ export function ParticipantManager() {
 
   const handleApprove = async (identity: string) => {
     const encoder = new TextEncoder();
-    const data = encoder.encode(JSON.stringify({
-      action: 'approved',
-      identity,
-    }));
+    const data = encoder.encode(
+      JSON.stringify({
+        action: 'approved',
+        identity,
+      }),
+    );
 
     await room.localParticipant.publishData(data, {
       reliable: true,
       topic: 'waiting-room-response',
     });
 
-    setWaitingParticipants(prev => prev.filter(p => p !== identity));
+    setWaitingParticipants((prev) => prev.filter((p) => p !== identity));
     toast.success('Participant approved');
   };
 
   const handleDeny = async (identity: string) => {
     const encoder = new TextEncoder();
-    const data = encoder.encode(JSON.stringify({
-      action: 'denied',
-      identity,
-    }));
+    const data = encoder.encode(
+      JSON.stringify({
+        action: 'denied',
+        identity,
+      }),
+    );
 
     await room.localParticipant.publishData(data, {
       reliable: true,
       topic: 'waiting-room-response',
     });
 
-    setWaitingParticipants(prev => prev.filter(p => p !== identity));
+    setWaitingParticipants((prev) => prev.filter((p) => p !== identity));
     toast.success('Participant denied');
   };
 
   const handleKick = async (participant: RemoteParticipant) => {
     try {
       const encoder = new TextEncoder();
-      const data = encoder.encode(JSON.stringify({
-        action: 'kick',
-        identity: participant.identity,
-      }));
+      const data = encoder.encode(
+        JSON.stringify({
+          action: 'kick',
+          identity: participant.identity,
+        }),
+      );
 
       await room.localParticipant.publishData(data, {
         reliable: true,
@@ -144,7 +150,13 @@ export function ParticipantManager() {
               <h3 style={{ margin: 0, fontSize: '1rem' }}>Participant Manager</h3>
               <button
                 onClick={() => setShowManager(false)}
-                style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer', fontSize: '1.5rem' }}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: 'white',
+                  cursor: 'pointer',
+                  fontSize: '1.5rem',
+                }}
               >
                 ×
               </button>
@@ -155,7 +167,13 @@ export function ParticipantManager() {
             {/* Waiting Room */}
             {waitingParticipants.length > 0 && (
               <div style={{ marginBottom: '1rem' }}>
-                <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '0.875rem', color: 'rgba(255,255,255,0.6)' }}>
+                <h4
+                  style={{
+                    margin: '0 0 0.5rem 0',
+                    fontSize: '0.875rem',
+                    color: 'rgba(255,255,255,0.6)',
+                  }}
+                >
                   Waiting Room
                 </h4>
                 {waitingParticipants.map((identity) => (
@@ -174,14 +192,26 @@ export function ParticipantManager() {
                       <button
                         onClick={() => handleApprove(identity)}
                         className="lk-button"
-                        style={{ flex: 1, padding: '0.25rem', fontSize: '0.75rem', background: 'var(--vcyber-success-bg)', border: '1px solid var(--vcyber-success-border)' }}
+                        style={{
+                          flex: 1,
+                          padding: '0.25rem',
+                          fontSize: '0.75rem',
+                          background: 'var(--vcyber-success-bg)',
+                          border: '1px solid var(--vcyber-success-border)',
+                        }}
                       >
                         ✓ Approve
                       </button>
                       <button
                         onClick={() => handleDeny(identity)}
                         className="lk-button"
-                        style={{ flex: 1, padding: '0.25rem', fontSize: '0.75rem', background: 'var(--vcyber-danger-bg)', border: '1px solid var(--vcyber-danger-border)' }}
+                        style={{
+                          flex: 1,
+                          padding: '0.25rem',
+                          fontSize: '0.75rem',
+                          background: 'var(--vcyber-danger-bg)',
+                          border: '1px solid var(--vcyber-danger-border)',
+                        }}
                       >
                         ✕ Deny
                       </button>
@@ -192,7 +222,13 @@ export function ParticipantManager() {
             )}
 
             {/* Active Participants */}
-            <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '0.875rem', color: 'rgba(255,255,255,0.6)' }}>
+            <h4
+              style={{
+                margin: '0 0 0.5rem 0',
+                fontSize: '0.875rem',
+                color: 'rgba(255,255,255,0.6)',
+              }}
+            >
               Active Participants
             </h4>
             {participants.map((participant) => {
@@ -215,7 +251,12 @@ export function ParticipantManager() {
                   <div>
                     <div style={{ fontWeight: 500 }}>
                       {participant.name || participant.identity}
-                      {isMe && <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem' }}> (You - Host)</span>}
+                      {isMe && (
+                        <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem' }}>
+                          {' '}
+                          (You - Host)
+                        </span>
+                      )}
                     </div>
                   </div>
                   {isRemote && (

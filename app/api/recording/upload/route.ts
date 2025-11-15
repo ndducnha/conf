@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
     if (!video || !recordingId) {
       return NextResponse.json(
         { error: 'Video file and recording ID are required' },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -32,9 +32,6 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error('Error uploading recording:', error);
-    return NextResponse.json(
-      { error: 'Failed to upload recording' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to upload recording' }, { status: 500 });
   }
 }

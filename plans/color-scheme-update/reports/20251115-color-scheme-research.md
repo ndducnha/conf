@@ -17,6 +17,7 @@ Logo-aligned color schemes require balancing three critical factors: aesthetic c
 **Sources Consulted:** 15+ authoritative sources
 **Date Range:** 2024-2025 resources
 **Search Terms Used:**
+
 - CSS gradient color schemes logo extraction best practices
 - Cyan to purple gradient accessibility WCAG contrast
 - LiveKit component theming CSS variables
@@ -30,12 +31,14 @@ Logo-aligned color schemes require balancing three critical factors: aesthetic c
 ### 1. Gradient Logo Color Extraction Best Practices
 
 **Core Principles:**
+
 - Extract 5-7 discrete colors from logo gradient for design system (too many increases cognitive load)
 - Use dominant color as anchor point, intermediate colors for transitions
 - Test gradients in actual design context before finalizing (colors appear different with surrounding elements)
 - Minimize color stops for performance (complex gradients impact low-end device rendering)
 
 **Recommended Extraction from Vcyber Logo:**
+
 ```
 Primary: #00d4ff (Cyan)
 Secondary: #0066ff (Blue)
@@ -45,6 +48,7 @@ Text accent: #00b4ff (Bright blue)
 ```
 
 **Tools for Color Extraction:**
+
 - ColorSpace (mycolor.space) - generates intermediate colors & palettes
 - ColorKit - select 2+ colors → generates gradient palette
 - GradientStudio - AI-powered extraction from images
@@ -53,6 +57,7 @@ Text accent: #00b4ff (Bright blue)
 ### 2. Accessibility Challenges with Cyan-to-Purple Gradients
 
 **WCAG Requirements:**
+
 - AA Level: 4.5:1 contrast ratio (standard requirement)
 - AAA Level: 7:1 contrast ratio (higher standard)
 - Text requires minimum 4.5:1 against ALL color stop points in gradient
@@ -61,7 +66,9 @@ Text accent: #00b4ff (Bright blue)
 Cyan (#00d4ff) is high luminosity color → difficult to achieve contrast ratios with light text. White text over pure cyan fails WCAG AA (ratio ~1.3:1).
 
 **Solutions:**
+
 1. **Dark overlay approach:** Add semi-transparent dark overlay on gradient backgrounds for text
+
    ```css
    background: linear-gradient(135deg, #00d4ff, #a855f7);
    background-color: rgba(0, 0, 0, 0.5); /* overlay for text */
@@ -76,6 +83,7 @@ Cyan (#00d4ff) is high luminosity color → difficult to achieve contrast ratios
 ### 3. CSS Gradient Implementation Techniques
 
 **Tailwind CSS Approach (Recommended):**
+
 ```javascript
 // tailwind.config.js
 module.exports = {
@@ -93,10 +101,11 @@ module.exports = {
       },
     },
   },
-}
+};
 ```
 
 **CSS Variables Approach (For Runtime Flexibility):**
+
 ```css
 :root {
   --gradient-vcyber: linear-gradient(135deg, #00d4ff, #0066ff, #a855f7);
@@ -112,6 +121,7 @@ module.exports = {
 ```
 
 **Directional Gradient Variants:**
+
 - `bg-gradient-to-r`: left to right (recommended for horizontal layouts)
 - `bg-gradient-to-b`: top to bottom (recommended for hero sections)
 - `bg-gradient-135`: custom angle (135deg matches logo aesthetics)
@@ -119,6 +129,7 @@ module.exports = {
 ### 4. Color Palette Generation Strategy
 
 **5-Step Process:**
+
 1. Identify 3 anchor colors from logo (cyan, blue, purple)
 2. Generate 2-3 intermediate colors using ColorSpace or ColorKit
 3. Generate darker tints (70-80% saturation) for text overlays
@@ -126,6 +137,7 @@ module.exports = {
 5. Export as CSS variables or Tailwind config
 
 **Example Generated Palette from Vcyber Logo:**
+
 ```
 Cyan Family:
   - #00d4ff (primary cyan)
@@ -147,6 +159,7 @@ Neutral:
 
 **Available CSS Variables to Override:**
 LiveKit uses scoped CSS custom properties that can be overridden:
+
 - `--bg`, `--bg2` through `--bg5` (background colors)
 - `--fg`, `--fg2` through `--fg5` (foreground text colors)
 - `--accent-bg`, `--accent-fg` (accent colors)
@@ -183,9 +196,10 @@ export const vcyberTheme = {
 ```
 
 **CSS Variable Override Method:**
+
 ```css
 /* In global CSS or component module */
-[data-theme="vcyber"] {
+[data-theme='vcyber'] {
   --bg: #0a1628;
   --bg2: #1a2332;
   --accent-bg: #00d4ff;
@@ -201,18 +215,19 @@ export const vcyberTheme = {
 ### Quick Start (3-Step Process)
 
 **Step 1: Create Tailwind Configuration**
+
 ```javascript
 // tailwind.config.ts
 export default {
   theme: {
     extend: {
       colors: {
-        'vcyber': {
-          'cyan': '#00d4ff',
-          'blue': '#0066ff',
-          'purple': '#a855f7',
-          'dark': '#0a1628',
-          'darker': '#0f1420',
+        vcyber: {
+          cyan: '#00d4ff',
+          blue: '#0066ff',
+          purple: '#a855f7',
+          dark: '#0a1628',
+          darker: '#0f1420',
         },
       },
       backgroundImage: {
@@ -220,10 +235,11 @@ export default {
       },
     },
   },
-}
+};
 ```
 
 **Step 2: Apply Global CSS Variables**
+
 ```css
 /* app/globals.css */
 @import '@livekit/components-styles';
@@ -232,7 +248,7 @@ export default {
   --gradient-vcyber: linear-gradient(135deg, #00d4ff 0%, #0066ff 50%, #a855f7 100%);
 }
 
-[data-livekit-theme="vcyber"] {
+[data-livekit-theme='vcyber'] {
   --bg: #0a1628;
   --bg2: #1a2332;
   --accent-bg: #00d4ff;
@@ -244,26 +260,24 @@ export default {
 ```
 
 **Step 3: Update Components**
+
 ```jsx
 // app/rooms/[roomName]/PageClientImpl.tsx
-<LiveKitRoom
-  data-livekit-theme="vcyber"
-  className="bg-gradient-vcyber"
->
+<LiveKitRoom data-livekit-theme="vcyber" className="bg-gradient-vcyber">
   {/* components */}
 </LiveKitRoom>
 ```
 
 ### Common Pitfalls & Solutions
 
-| Issue | Solution |
-|-------|----------|
-| White text unreadable on cyan areas | Use `text-vcyber-dark` (#0a1628) on cyan, white on purple |
-| Gradient appears flat on old browsers | Add fallback: `background: #0066ff; background-image: linear-gradient...` |
-| LiveKit components not themed | Ensure `@import '@livekit/components-styles'` comes before custom theme |
-| Tailwind colors not applied | Use `extend` in config, not override (preserves default palette) |
-| Performance issues with multiple gradients | Limit to 3-4 color stops; use `will-change: background` for animations |
-| Contrast fails on gradient text | Move text to solid background or add 0.3-0.5 opacity dark overlay |
+| Issue                                      | Solution                                                                  |
+| ------------------------------------------ | ------------------------------------------------------------------------- |
+| White text unreadable on cyan areas        | Use `text-vcyber-dark` (#0a1628) on cyan, white on purple                 |
+| Gradient appears flat on old browsers      | Add fallback: `background: #0066ff; background-image: linear-gradient...` |
+| LiveKit components not themed              | Ensure `@import '@livekit/components-styles'` comes before custom theme   |
+| Tailwind colors not applied                | Use `extend` in config, not override (preserves default palette)          |
+| Performance issues with multiple gradients | Limit to 3-4 color stops; use `will-change: background` for animations    |
+| Contrast fails on gradient text            | Move text to solid background or add 0.3-0.5 opacity dark overlay         |
 
 ### Performance Considerations
 
@@ -278,11 +292,11 @@ export default {
 
 **Three Theming Approaches Evaluated:**
 
-| Approach | Pros | Cons | Best For |
-|----------|------|------|----------|
-| **Tailwind Utilities** | Simple, type-safe, tree-shakeable | Less flexible for runtime changes | Static themes, production apps |
-| **CSS Variables** | Runtime flexibility, zero JS overhead | Slight browser compatibility (modern only) | Theme switching, dark mode |
-| **Inline Styles** | Maximum control, no config files | Poor performance, hard to maintain | Temporary overrides only |
+| Approach               | Pros                                  | Cons                                       | Best For                       |
+| ---------------------- | ------------------------------------- | ------------------------------------------ | ------------------------------ |
+| **Tailwind Utilities** | Simple, type-safe, tree-shakeable     | Less flexible for runtime changes          | Static themes, production apps |
+| **CSS Variables**      | Runtime flexibility, zero JS overhead | Slight browser compatibility (modern only) | Theme switching, dark mode     |
+| **Inline Styles**      | Maximum control, no config files      | Poor performance, hard to maintain         | Temporary overrides only       |
 
 **Recommendation:** Hybrid approach = Tailwind for base colors + CSS variables for LiveKit theming
 
@@ -291,6 +305,7 @@ export default {
 ## Resources & References
 
 ### Official Documentation
+
 - [Tailwind CSS Gradients](https://tailwindcss.com/docs/gradient-color-stops)
 - [LiveKit Component Styling](https://docs.livekit.io/reference/components/react/concepts/style-components/)
 - [LiveKit Theme Variables (GitHub)](https://github.com/livekit/components-js/blob/main/packages/styles/scss/themes/default.scss)
@@ -298,12 +313,14 @@ export default {
 - [WCAG Contrast Requirements](https://www.w3.org/WAI/WCAG21/Understanding/non-text-contrast.html)
 
 ### Recommended Tools
+
 - [ColorSpace](https://mycolor.space) - Palette generation from hex codes
 - [WebAIM Contrast Checker](https://webaim.org/resources/contrastchecker/) - Accessibility validation
 - [GradientStudio](https://gradientstudio.io/) - AI-powered color extraction
 - [Coolors](https://coolors.co/gradient-palette) - Gradient visualization
 
 ### Community Resources
+
 - [LogRocket: Gradients with Tailwind CSS](https://blog.logrocket.com/guide-adding-gradients-tailwind-css/)
 - [Stack Overflow: Tailwind Gradient Customization](https://stackoverflow.com/questions/66892093)
 - [Hypercolor](https://hypercolor.dev/) - Pre-built Tailwind gradients

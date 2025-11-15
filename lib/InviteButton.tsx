@@ -13,7 +13,7 @@ export function InviteButton() {
       (err) => {
         console.error('Failed to copy link:', err);
         toast.error('Failed to copy link');
-      }
+      },
     );
   };
 
