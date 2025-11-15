@@ -133,6 +133,19 @@ export function UnifiedMenu({ onOpenChat, onOpenRecording, unreadMessages = 0 }:
         }}
       >
         ☰ Menu
+        {unreadMessages > 0 && (
+          <span className="new-chat-indicator" style={{
+            position: 'absolute',
+            top: '8px',
+            left: '8px',
+            width: '8px',
+            height: '8px',
+            background: 'var(--vcyber-cyan)',
+            borderRadius: '50%',
+            animation: 'pulse-chat 2s infinite',
+            boxShadow: '0 0 8px var(--vcyber-cyan)',
+          }} />
+        )}
         {(waitingParticipants.length > 0 || unreadMessages > 0) && (
           <span style={{
             position: 'absolute',
@@ -185,6 +198,19 @@ export function UnifiedMenu({ onOpenChat, onOpenRecording, unreadMessages = 0 }:
               style={{ width: '100%', padding: '0.75rem', textAlign: 'left', background: 'var(--vcyber-blue-bg)', border: '1px solid var(--vcyber-blue-border)', position: 'relative' }}
             >
               💬 Chat
+              {unreadMessages > 0 && (
+                <span className="new-chat-indicator" style={{
+                  position: 'absolute',
+                  top: '12px',
+                  left: '12px',
+                  width: '8px',
+                  height: '8px',
+                  background: 'var(--vcyber-cyan)',
+                  borderRadius: '50%',
+                  animation: 'pulse-chat 2s infinite',
+                  boxShadow: '0 0 8px var(--vcyber-cyan)',
+                }} />
+              )}
               {unreadMessages > 0 && (
                 <span style={{
                   position: 'absolute',
@@ -322,6 +348,17 @@ export function UnifiedMenu({ onOpenChat, onOpenRecording, unreadMessages = 0 }:
       )}
 
       <style jsx global>{`
+        @keyframes pulse-chat {
+          0%, 100% {
+            opacity: 1;
+            transform: scale(1);
+          }
+          50% {
+            opacity: 0.4;
+            transform: scale(1.3);
+          }
+        }
+
         @media (max-width: 768px) {
           .unified-menu-dropdown {
             right: 0.5rem !important;

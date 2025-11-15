@@ -7,7 +7,10 @@ Complete guide to all the advanced features available in Vcyber video conferenci
 ## 🎨 Core Features
 
 ### ✅ Custom Branding
-- Dark gradient theme (deep blue to purple)
+- **Logo-Aligned Color Scheme**: Cyan (#00d4ff) → Blue (#0066ff) → Purple (#a855f7) gradient
+- **Dark Navy Background**: Professional dark theme (#0a1628)
+- **Consistent Theming**: CSS variables ensure uniform colors across all components
+- **Visual Indicators**: Color-coded buttons (Chat=Blue, Recording=Red, Invite=Green, Participants=Purple)
 - Vcyber logo and branding throughout the app
 - Professional, modern interface
 
@@ -23,19 +26,36 @@ Complete guide to all the advanced features available in Vcyber video conferenci
 
 ### Features:
 - **Text Messaging**: Real-time chat with all participants
-- **File Sharing**: Send files up to 10MB directly in chat
+- **Smart Notifications**:
+  - 🟢 **Pulsing cyan dot** indicator on Menu and Chat buttons when new messages arrive
+  - 🔴 **Red badge** showing unread message count
+  - **Window focus detection**: Notifications only appear when window is blurred (not actively viewing)
+  - **Rate limiting**: Max 1 notification per sender every 3 seconds (prevents spam)
+- **File Sharing**: Send files up to 15MB directly in chat
 - **File Types**: Support for all file types
-- **Auto-download**: Received files download automatically
+- **Download Buttons**: Received files can be downloaded with one click
+
+### Notification Indicators:
+- **☰ Menu Button**:
+  - Pulsing cyan dot appears when unread messages exist
+  - Red badge shows total count (unread messages + waiting participants)
+- **💬 Chat Button** (in menu):
+  - Pulsing cyan dot appears when unread messages exist
+  - Red badge shows unread message count
+- **Toast Notifications**: Only shown when window is not focused (prevents duplicate alerts)
 
 ### How to Use:
-1. Click the **💬 Chat** button in the bottom-left during a meeting
-2. Type your message or click **📎** to attach a file
-3. Files are sent instantly to all participants
-4. Participants receive a notification when files arrive
+1. Click the **☰ Menu** button during a meeting (look for pulsing cyan dot for new messages)
+2. Click **💬 Chat** to open the chat panel
+3. Type your message or click **📎** to attach a file
+4. Files are sent instantly to all participants (chunked for reliability)
+5. Click **⬇ Download** button below received files to save them
+6. When you open chat, all indicators reset (messages marked as read)
 
 ### Limitations:
-- Maximum file size: 10MB
-- Files are transferred peer-to-peer (not stored on server)
+- Maximum file size: 15MB
+- Files are transferred peer-to-peer using chunked transfer
+- Files are not stored on server, only in memory during session
 - Ensure stable connection for large files
 
 ---
@@ -51,21 +71,23 @@ Complete guide to all the advanced features available in Vcyber video conferenci
 
 **How it works:**
 1. First person joins automatically as host
-2. Additional participants request to join
-3. Host sees notification in the Participant Manager
-4. Host can approve or deny each request
+2. Additional participants automatically send join request
+3. Participants see "Waiting for host approval..." screen
+4. Host receives toast notification and sees requests in Participant Manager
+5. Host can approve (participant joins) or deny (participant is disconnected)
 
 ### Kick Member Functionality
 
 **Host can:**
 - View all active participants
-- Remove disruptive participants
+- Remove disruptive participants instantly
 - Maintain control of the meeting
 
 **How to use:**
 1. Click **👥 Manage** button (top-right, host only)
 2. View list of all participants
-3. Click **Kick** next to any participant to remove them
+3. Click **Kick** next to any participant
+4. Participant is immediately disconnected from the room
 
 ### Interface:
 - **Waiting Room Section**: Shows pending join requests
@@ -192,9 +214,10 @@ All features work seamlessly on:
 ## 🆘 Troubleshooting
 
 ### File Sharing Issues:
-- **File too large**: Maximum 10MB limit
+- **File too large**: Maximum 15MB limit
 - **Transfer failed**: Check internet connection
 - **File not received**: Ensure both parties are connected
+- **Download button missing**: Received files show download button below chat messages
 
 ### Recording Issues:
 - **Can't start recording**: Check server permissions
@@ -232,9 +255,10 @@ Planned features for future releases:
 
 ### For Participants:
 1. Wait for host approval if waiting room is enabled
-2. Keep files under 10MB for reliable transfer
-3. Respect recording indicators
-4. Use chat for quick communications
+2. Keep files under 15MB for reliable transfer
+3. Use download buttons to save received files
+4. Respect recording indicators
+5. Use chat for quick communications
 
 ### For Recording:
 1. Inform participants before recording
