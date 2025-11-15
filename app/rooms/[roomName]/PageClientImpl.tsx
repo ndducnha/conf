@@ -6,11 +6,10 @@ import { DebugMode } from '@/lib/Debug';
 import { KeyboardShortcuts } from '@/lib/KeyboardShortcuts';
 import { RecordingIndicator } from '@/lib/RecordingIndicator';
 import { SettingsMenu } from '@/lib/SettingsMenu';
-import { InviteButton } from '@/lib/InviteButton';
 import { RoomBranding } from '@/lib/RoomBranding';
-import { ParticipantManager } from '@/lib/ParticipantManager';
 import { RecordingControls } from '@/lib/RecordingControls';
 import { EnhancedChat } from '@/lib/EnhancedChat';
+import { UnifiedMenu } from '@/lib/UnifiedMenu';
 import { ConnectionDetails } from '@/lib/types';
 import {
   formatChatMessageLinks,
@@ -84,6 +83,10 @@ export function PageClientImpl(props: {
     <main data-lk-theme="default" style={{ height: '100%' }}>
       {connectionDetails === undefined || preJoinChoices === undefined ? (
         <div style={{ display: 'grid', placeItems: 'center', height: '100%' }}>
+          <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+            <img src="/images/logo.jpg" alt="Vcyber" width="120" height="120" style={{ borderRadius: '12px', marginBottom: '1rem' }} />
+            <h2 style={{ margin: 0, color: 'white' }}>Vcyber</h2>
+          </div>
           <PreJoin
             defaults={preJoinDefaults}
             onSubmit={handlePreJoinSubmit}
@@ -114,6 +117,8 @@ function VideoConferenceComponent(props: {
   const e2eeEnabled = !!(e2eePassphrase && worker);
 
   const [e2eeSetupComplete, setE2eeSetupComplete] = React.useState(false);
+  const [waitingForApproval, setWaitingForApproval] = React.useState(false);
+  const [isDenied, setIsDenied] = React.useState(false);
 
   const roomOptions = React.useMemo((): RoomOptions => {
     let videoCodec: VideoCodec | undefined = props.options.codec ? props.options.codec : 'vp9';
@@ -180,6 +185,46 @@ function VideoConferenceComponent(props: {
     room.on(RoomEvent.EncryptionError, handleEncryptionError);
     room.on(RoomEvent.MediaDevicesError, handleError);
 
+    // Handle data messages for kick and waiting room
+    const handleDataReceived = async (
+      payload: Uint8Array,
+      participant?: any,
+      kind?: any,
+      topic?: string
+    ) => {
+      try {
+        const decoder = new TextDecoder();
+        const data = JSON.parse(decoder.decode(payload));
+
+        // Handle kick message
+        if (topic === 'participant-control' && data.action === 'kick') {
+          if (data.identity === room.localParticipant.identity) {
+            alert('You have been removed from the meeting by the host');
+            await room.disconnect();
+            handleOnLeave();
+          }
+        }
+
+        // Handle waiting room response
+        if (topic === 'waiting-room-response') {
+          if (data.identity === room.localParticipant.identity) {
+            if (data.action === 'approved') {
+              setWaitingForApproval(false);
+            } else if (data.action === 'denied') {
+              setIsDenied(true);
+              alert('Your request to join was denied by the host');
+              await room.disconnect();
+              handleOnLeave();
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error handling data:', error);
+      }
+    };
+
+    room.on('dataReceived', handleDataReceived);
+
     if (e2eeSetupComplete) {
       room
         .connect(
@@ -187,24 +232,49 @@ function VideoConferenceComponent(props: {
           props.connectionDetails.participantToken,
           connectOptions,
         )
+        .then(async () => {
+          // Send join request for waiting room (unless you're likely the first/host)
+          // We'll send the request and let the host logic handle it
+          const encoder = new TextEncoder();
+          const joinRequest = encoder.encode(JSON.stringify({
+            action: 'join-request',
+            identity: room.localParticipant.identity,
+            name: props.userChoices.username,
+          }));
+
+          // Wait a moment to let other participants load, then send join request
+          setTimeout(async () => {
+            const participants = Array.from(room.remoteParticipants.values());
+            // If there are other participants, we might need approval
+            if (participants.length > 0) {
+              setWaitingForApproval(true);
+              await room.localParticipant.publishData(joinRequest, {
+                reliable: true,
+                topic: 'waiting-room-request',
+              });
+            }
+          }, 1000);
+
+          if (props.userChoices.videoEnabled) {
+            await room.localParticipant.setCameraEnabled(true).catch((error) => {
+              handleError(error);
+            });
+          }
+          if (props.userChoices.audioEnabled) {
+            await room.localParticipant.setMicrophoneEnabled(true).catch((error) => {
+              handleError(error);
+            });
+          }
+        })
         .catch((error) => {
           handleError(error);
         });
-      if (props.userChoices.videoEnabled) {
-        room.localParticipant.setCameraEnabled(true).catch((error) => {
-          handleError(error);
-        });
-      }
-      if (props.userChoices.audioEnabled) {
-        room.localParticipant.setMicrophoneEnabled(true).catch((error) => {
-          handleError(error);
-        });
-      }
     }
     return () => {
       room.off(RoomEvent.Disconnected, handleOnLeave);
       room.off(RoomEvent.EncryptionError, handleEncryptionError);
       room.off(RoomEvent.MediaDevicesError, handleError);
+      room.off('dataReceived', handleDataReceived);
     };
   }, [e2eeSetupComplete, room, props.connectionDetails, props.userChoices]);
 
@@ -229,7 +299,44 @@ function VideoConferenceComponent(props: {
     }
   }, [lowPowerMode]);
 
+  return (
+    <div className="lk-room-container" style={{ position: 'relative' }}>
+      <RoomContext.Provider value={room}>
+        {waitingForApproval ? (
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            height: '100vh',
+            flexDirection: 'column',
+            gap: '1rem',
+          }}>
+            <img src="/images/logo.jpg" alt="Vcyber" width="120" height="120" style={{ borderRadius: '12px', marginBottom: '1rem' }} />
+            <h2 style={{ color: 'white' }}>Vcyber</h2>
+            <div style={{ fontSize: '2rem' }}>⏳</div>
+            <h3>Waiting for host approval...</h3>
+            <p style={{ color: 'rgba(255,255,255,0.6)', textAlign: 'center', maxWidth: '400px' }}>
+              The host will approve or deny your request to join shortly.
+            </p>
+          </div>
+        ) : (
+          <>
+            <RoomBranding />
+            <KeyboardShortcuts />
+            <CustomVideoConferenceLayout />
+            <DebugMode />
+            <RecordingIndicator />
+          </>
+        )}
+      </RoomContext.Provider>
+    </div>
+  );
+}
+
+function CustomVideoConferenceLayout() {
   const [showChat, setShowChat] = React.useState(false);
+  const [showRecording, setShowRecording] = React.useState(false);
+  const [unreadMessages, setUnreadMessages] = React.useState(0);
   const tracks = useTracks(
     [
       { source: Track.Source.Camera, withPlaceholder: true },
@@ -238,105 +345,98 @@ function VideoConferenceComponent(props: {
     { onlySubscribed: false }
   );
 
+  const handleOpenChat = React.useCallback(() => {
+    setShowChat(true);
+    setUnreadMessages(0); // Clear unread count when opening chat
+  }, []);
+
+  const handleNewMessage = React.useCallback(() => {
+    if (!showChat) {
+      setUnreadMessages(prev => prev + 1);
+    }
+  }, [showChat]);
+
   return (
-    <div className="lk-room-container" style={{ position: 'relative' }}>
-      <RoomContext.Provider value={room}>
-        <RoomBranding />
-        <div
-          style={{
-            position: 'absolute',
-            top: '1rem',
-            right: '1rem',
-            zIndex: 10,
-          }}
-        >
-          <InviteButton />
-        </div>
-        <ParticipantManager />
-        <RecordingControls />
-        <KeyboardShortcuts />
-
-        {/* Custom Video Conference Layout */}
-        <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-          <div style={{ flex: 1, display: 'flex', position: 'relative', overflow: 'hidden' }}>
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-              <div style={{ flex: 1, overflow: 'hidden' }}>
-                <GridLayout tracks={tracks}>
-                  <ParticipantTile />
-                </GridLayout>
-              </div>
-              <div style={{ padding: '1rem', background: 'rgba(0, 0, 0, 0.5)' }}>
-                <ControlBar variation="verbose" />
-              </div>
+    <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ flex: 1, display: 'flex', position: 'relative', overflow: 'hidden' }}>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+          <div style={{ flex: 1, overflow: 'hidden' }}>
+            <GridLayout tracks={tracks}>
+              <ParticipantTile />
+            </GridLayout>
+          </div>
+          <div style={{ padding: '1rem', background: 'rgba(0, 0, 0, 0.5)', display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+            <div style={{ flex: 1 }}>
+              <ControlBar variation="verbose" />
             </div>
+            <UnifiedMenu
+              onOpenChat={handleOpenChat}
+              onOpenRecording={() => setShowRecording(true)}
+              unreadMessages={unreadMessages}
+            />
+          </div>
+        </div>
 
-            {showChat && (
-              <div
+        {showChat && (
+          <div
+            className="chat-panel"
+            style={{
+              width: '350px',
+              background: 'rgba(0, 0, 0, 0.9)',
+              borderLeft: '1px solid rgba(255, 255, 255, 0.15)',
+              display: 'flex',
+              flexDirection: 'column',
+            }}
+          >
+            <div style={{
+              padding: '1rem',
+              borderBottom: '1px solid rgba(255, 255, 255, 0.15)',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center'
+            }}>
+              <h3 style={{ margin: 0 }}>Chat</h3>
+              <button
+                onClick={() => setShowChat(false)}
+                className="lk-button"
                 style={{
-                  width: '350px',
-                  background: 'rgba(0, 0, 0, 0.9)',
-                  borderLeft: '1px solid rgba(255, 255, 255, 0.15)',
-                  display: 'flex',
-                  flexDirection: 'column',
+                  background: 'none',
+                  border: 'none',
+                  color: 'white',
+                  cursor: 'pointer',
+                  fontSize: '1.5rem',
+                  padding: '0 0.5rem'
                 }}
               >
-                <div style={{
-                  padding: '1rem',
-                  borderBottom: '1px solid rgba(255, 255, 255, 0.15)',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center'
-                }}>
-                  <h3 style={{ margin: 0 }}>Chat</h3>
-                  <button
-                    onClick={() => setShowChat(false)}
-                    className="lk-button"
-                    style={{
-                      background: 'none',
-                      border: 'none',
-                      color: 'white',
-                      cursor: 'pointer',
-                      fontSize: '1.5rem',
-                      padding: '0 0.5rem'
-                    }}
-                  >
-                    ×
-                  </button>
-                </div>
-                <div style={{ flex: 1, overflow: 'hidden' }}>
-                  <EnhancedChat />
-                </div>
-              </div>
-            )}
+                ×
+              </button>
+            </div>
+            <div style={{ flex: 1, overflow: 'hidden' }}>
+              <EnhancedChat onNewMessage={handleNewMessage} />
+            </div>
           </div>
+        )}
+      </div>
 
-          {/* Chat Toggle Button */}
-          {!showChat && (
-            <button
-              onClick={() => setShowChat(true)}
-              className="lk-button"
-              style={{
-                position: 'absolute',
-                bottom: '5rem',
-                left: '1rem',
-                padding: '0.5rem 1rem',
-                background: 'rgba(0, 102, 255, 0.8)',
-                border: '1px solid rgba(255, 255, 255, 0.2)',
-                borderRadius: '0.5rem',
-                zIndex: 10,
-              }}
-            >
-              💬 Chat
-            </button>
-          )}
+      {showRecording && <RecordingControls onClose={() => setShowRecording(false)} />}
 
-          <RoomAudioRenderer />
-          <ConnectionStateToast />
-        </div>
+      <RoomAudioRenderer />
+      <ConnectionStateToast />
 
-        <DebugMode />
-        <RecordingIndicator />
-      </RoomContext.Provider>
+      {/* Responsive styles */}
+      <style jsx global>{`
+        @media (max-width: 768px) {
+          .chat-panel {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            width: 100% !important;
+            z-index: 1000 !important;
+          }
+        }
+      `}</style>
     </div>
   );
 }

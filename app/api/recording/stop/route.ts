@@ -20,6 +20,8 @@ export async function POST(request: NextRequest) {
     metadata.endTime = new Date().toISOString();
     metadata.status = 'completed';
     metadata.duration = new Date(metadata.endTime).getTime() - new Date(metadata.startTime).getTime();
+    metadata.videoFile = `${recordingId}.webm`;
+    metadata.videoPath = `/recordings/${recordingId}.webm`;
 
     await writeFile(metadataPath, JSON.stringify(metadata, null, 2));
 

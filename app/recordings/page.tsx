@@ -11,6 +11,8 @@ interface Recording {
   endTime?: string;
   status: string;
   duration?: number;
+  videoFile?: string;
+  videoPath?: string;
 }
 
 export default function RecordingsPage() {
@@ -123,7 +125,7 @@ export default function RecordingsPage() {
                   </span>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', fontSize: '0.875rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', fontSize: '0.875rem', marginBottom: '1rem' }}>
                   <div>
                     <span style={{ color: 'rgba(255,255,255,0.6)' }}>Recording ID:</span>
                     <br />
@@ -137,6 +139,46 @@ export default function RecordingsPage() {
                     </div>
                   )}
                 </div>
+
+                {recording.videoPath && recording.status === 'completed' && (
+                  <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
+                    <a
+                      href={recording.videoPath}
+                      download={recording.videoFile}
+                      className="lk-button"
+                      style={{
+                        padding: '0.5rem 1rem',
+                        fontSize: '0.875rem',
+                        background: 'rgba(0,255,0,0.3)',
+                        border: '1px solid rgba(0,255,0,0.5)',
+                        textDecoration: 'none',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                      }}
+                    >
+                      ⬇ Download Video
+                    </a>
+                    <a
+                      href={recording.videoPath}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="lk-button"
+                      style={{
+                        padding: '0.5rem 1rem',
+                        fontSize: '0.875rem',
+                        background: 'rgba(0,102,255,0.3)',
+                        border: '1px solid rgba(0,102,255,0.5)',
+                        textDecoration: 'none',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                      }}
+                    >
+                      ▶ Play
+                    </a>
+                  </div>
+                )}
               </div>
             ))}
           </div>
