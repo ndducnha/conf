@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { useChat, useRoomContext, useDataChannel } from '@livekit/components-react';
+import { stripParticipantPostfix } from './client-utils';
 import toast from 'react-hot-toast';
 
 interface FileMessage {
@@ -68,7 +69,7 @@ export function EnhancedChat({ onNewMessage }: EnhancedChatProps = {}) {
     // Show notification for new chat messages (skip initial load and own messages)
     if (chatMessages.length > prevMessageCountRef.current && prevMessageCountRef.current > 0) {
       const newMessage = chatMessages[chatMessages.length - 1];
-      const isOwnMessage = newMessage.from?.identity === room.localParticipant.identity;
+          const isOwnMessage = newMessage.from?.identity === room.localParticipant.identity;
       const isFileMessage =
         newMessage.message?.includes('📎') || newMessage.message?.includes('Sent file');
 
@@ -83,22 +84,20 @@ export function EnhancedChat({ onNewMessage }: EnhancedChatProps = {}) {
         const shouldNotify =
           timeSinceLastNotification >= NOTIFICATION_THROTTLE_MS && !isWindowFocused;
 
-        if (shouldNotify) {
+          if (shouldNotify) {
           // Update last notification time
           lastNotificationTimeRef.current.set(senderIdentity, now);
 
           // Trigger the notification badge
           onNewMessage?.();
 
-          setTimeout(() => {
-            toast(
-              `💬 ${newMessage.from?.name || newMessage.from?.identity || 'Someone'}: ${newMessage.message}`,
-              {
+            setTimeout(() => {
+              const displayName = newMessage.from?.name || stripParticipantPostfix(newMessage.from?.identity) || 'Someone';
+              toast(`💬 ${displayName}: ${newMessage.message}`, {
                 duration: 4000,
                 position: 'top-right',
-              },
-            );
-          }, 100);
+              });
+            }, 100);
         }
       }
     }
@@ -167,7 +166,7 @@ export function EnhancedChat({ onNewMessage }: EnhancedChatProps = {}) {
                     id: data.fileId,
                     name: fileData.metadata.name,
                     size: fileData.metadata.size,
-                    from: participant?.identity || 'Unknown',
+                    from: stripParticipantPostfix(participant?.identity) || 'Unknown',
                     blob,
                   };
 
@@ -331,7 +330,7 @@ export function EnhancedChat({ onNewMessage }: EnhancedChatProps = {}) {
                 marginBottom: '0.25rem',
               }}
             >
-              {msg.from?.identity || 'Unknown'}
+              {msg.from?.name || stripParticipantPostfix(msg.from?.identity) || 'Unknown'}
             </div>
             <div style={{ color: 'white' }}>{msg.message}</div>
           </div>
