@@ -4,6 +4,8 @@ import React from 'react';
 import { useParticipants, useRoomContext } from '@livekit/components-react';
 import { RemoteParticipant } from 'livekit-client';
 import toast from 'react-hot-toast';
+import { usePinnedParticipant } from './PinnedParticipantContext';
+import { stripParticipantPostfix } from './client-utils';
 
 interface UnifiedMenuProps {
   onOpenChat: () => void;
@@ -14,7 +16,12 @@ interface UnifiedMenuProps {
 export function UnifiedMenu({ onOpenChat, onOpenRecording, unreadMessages = 0 }: UnifiedMenuProps) {
   const [showMenu, setShowMenu] = React.useState(false);
   const [showParticipants, setShowParticipants] = React.useState(false);
-  const [waitingParticipants, setWaitingParticipants] = React.useState<string[]>([]);
+  type WaitingParticipant = {
+    identity: string;
+    name?: string;
+  };
+
+  const [waitingParticipants, setWaitingParticipants] = React.useState<WaitingParticipant[]>([]);
   const participants = useParticipants();
   const room = useRoomContext();
 
@@ -38,7 +45,13 @@ export function UnifiedMenu({ onOpenChat, onOpenRecording, unreadMessages = 0 }:
         const data = JSON.parse(decoder.decode(payload));
 
         if (data.action === 'join-request') {
-          setWaitingParticipants((prev) => [...prev, data.identity]);
+          setWaitingParticipants((prev) => {
+            if (prev.some((participant) => participant.identity === data.identity)) {
+              return prev;
+            }
+
+            return [...prev, { identity: data.identity, name: data.name }];
+          });
           toast(`${data.name} wants to join`, { duration: 10000 });
         }
       }
@@ -78,7 +91,7 @@ export function UnifiedMenu({ onOpenChat, onOpenRecording, unreadMessages = 0 }:
       topic: 'waiting-room-response',
     });
 
-    setWaitingParticipants((prev) => prev.filter((p) => p !== identity));
+    setWaitingParticipants((prev) => prev.filter((p) => p.identity !== identity));
     toast.success('Participant approved');
   };
 
@@ -96,7 +109,7 @@ export function UnifiedMenu({ onOpenChat, onOpenRecording, unreadMessages = 0 }:
       topic: 'waiting-room-response',
     });
 
-    setWaitingParticipants((prev) => prev.filter((p) => p !== identity));
+    setWaitingParticipants((prev) => prev.filter((p) => p.identity !== identity));
     toast.success('Participant denied');
   };
 
@@ -115,10 +128,30 @@ export function UnifiedMenu({ onOpenChat, onOpenRecording, unreadMessages = 0 }:
         topic: 'participant-control',
       });
 
-      toast.success(`Kicked ${participant.name || participant.identity}`);
+      toast.success(`Kicked ${participant.name || stripParticipantPostfix(participant.identity)}`);
     } catch (error) {
       console.error('Error kicking participant:', error);
       toast.error('Failed to kick participant');
+    }
+  };
+
+  const { pinnedIdentity, setPinnedIdentity } = (() => {
+    try {
+      return usePinnedParticipant();
+    } catch (e) {
+      return { pinnedIdentity: null, setPinnedIdentity: () => {} } as any;
+    }
+  })();
+
+  const handlePin = async (identity: string) => {
+    try {
+      const alreadyPinned = pinnedIdentity === identity;
+      // Local-only pin: do not broadcast to the room. Each participant's pin is local to them.
+      setPinnedIdentity(alreadyPinned ? null : identity);
+      toast.success(alreadyPinned ? 'Unpinned participant (local)' : 'Pinned participant (local)');
+    } catch (error) {
+      console.error('Error pinning participant:', error);
+      toast.error('Failed to pin participant');
     }
   };
 
@@ -176,6 +209,76 @@ export function UnifiedMenu({ onOpenChat, onOpenRecording, unreadMessages = 0 }:
           </span>
         )}
       </button>
+
+      {isHost && waitingParticipants.length > 0 && (
+        <div
+          className="waiting-room-popover"
+          style={{
+            position: 'fixed',
+            bottom: '6rem',
+            right: '1rem',
+            width: '280px',
+            background: 'rgba(0, 0, 0, 0.9)',
+            border: '1px solid rgba(255, 255, 255, 0.2)',
+            borderRadius: '0.5rem',
+            padding: '0.75rem',
+            zIndex: 1100,
+            boxShadow: '0 8px 16px rgba(0,0,0,0.35)',
+          }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+            <h4 style={{ margin: 0, fontSize: '0.95rem' }}>Waiting room</h4>
+            <span style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.6)' }}>
+              {waitingParticipants.length} pending
+            </span>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', maxHeight: '240px', overflowY: 'auto' }}>
+            {waitingParticipants.map((participant) => (
+              <div
+                key={participant.identity}
+                style={{
+                  padding: '0.5rem',
+                  background: 'var(--vcyber-warning-bg)',
+                  border: '1px solid var(--vcyber-warning-border)',
+                  borderRadius: '0.35rem',
+                }}
+              >
+                <div style={{ fontWeight: 600, marginBottom: '0.35rem', fontSize: '0.85rem' }}>
+                  {participant.name || stripParticipantPostfix(participant.identity)}
+                </div>
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  <button
+                    onClick={() => handleApprove(participant.identity)}
+                    className="lk-button"
+                    style={{
+                      flex: 1,
+                      padding: '0.35rem 0.5rem',
+                      fontSize: '0.8rem',
+                      background: 'var(--vcyber-success-bg)',
+                      border: '1px solid var(--vcyber-success-border)',
+                    }}
+                  >
+                    ✓ Approve
+                  </button>
+                  <button
+                    onClick={() => handleDeny(participant.identity)}
+                    className="lk-button"
+                    style={{
+                      flex: 1,
+                      padding: '0.35rem 0.5rem',
+                      fontSize: '0.8rem',
+                      background: 'var(--vcyber-danger-bg)',
+                      border: '1px solid var(--vcyber-danger-border)',
+                    }}
+                  >
+                    ✕ Deny
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {showMenu && (
         <div
@@ -311,27 +414,25 @@ export function UnifiedMenu({ onOpenChat, onOpenRecording, unreadMessages = 0 }:
               🔗 Copy Invite Link
             </button>
 
-            {isHost && (
-              <button
-                onClick={() => {
-                  setShowParticipants(!showParticipants);
-                }}
-                className="lk-button"
-                style={{
-                  width: '100%',
-                  padding: '0.75rem',
-                  textAlign: 'left',
-                  background: 'var(--vcyber-purple-bg)',
-                  border: '1px solid var(--vcyber-purple-border)',
-                }}
-              >
-                👥 Participants ({participants.length})
-                {waitingParticipants.length > 0 && ` - ${waitingParticipants.length} waiting`}
-              </button>
-            )}
+            <button
+              onClick={() => {
+                setShowParticipants(!showParticipants);
+              }}
+              className="lk-button"
+              style={{
+                width: '100%',
+                padding: '0.75rem',
+                textAlign: 'left',
+                background: 'var(--vcyber-purple-bg)',
+                border: '1px solid var(--vcyber-purple-border)',
+              }}
+            >
+              👥 Participants ({participants.length})
+              {isHost && waitingParticipants.length > 0 && ` - ${waitingParticipants.length} waiting`}
+            </button>
           </div>
 
-          {showParticipants && isHost && (
+          {showParticipants && (
             <div
               style={{
                 borderTop: '1px solid rgba(255,255,255,0.1)',
@@ -340,7 +441,7 @@ export function UnifiedMenu({ onOpenChat, onOpenRecording, unreadMessages = 0 }:
                 overflowY: 'auto',
               }}
             >
-              {waitingParticipants.length > 0 && (
+              {isHost && waitingParticipants.length > 0 && (
                 <div style={{ marginBottom: '1rem' }}>
                   <h4
                     style={{
@@ -351,7 +452,7 @@ export function UnifiedMenu({ onOpenChat, onOpenRecording, unreadMessages = 0 }:
                   >
                     Waiting Room
                   </h4>
-                  {waitingParticipants.map((identity) => (
+                  {waitingParticipants.map(({ identity, name }) => (
                     <div
                       key={identity}
                       style={{
@@ -362,7 +463,7 @@ export function UnifiedMenu({ onOpenChat, onOpenRecording, unreadMessages = 0 }:
                         border: '1px solid var(--vcyber-warning-border)',
                       }}
                     >
-                      <div style={{ marginBottom: '0.5rem', fontSize: '0.875rem' }}>{identity}</div>
+                      <div style={{ marginBottom: '0.5rem', fontSize: '0.875rem' }}>{name || stripParticipantPostfix(identity)}</div>
                       <div style={{ display: 'flex', gap: '0.5rem' }}>
                         <button
                           onClick={() => handleApprove(identity)}
@@ -423,7 +524,7 @@ export function UnifiedMenu({ onOpenChat, onOpenRecording, unreadMessages = 0 }:
                     }}
                   >
                     <div style={{ fontSize: '0.875rem' }}>
-                      {participant.name || participant.identity}
+                      {participant.name || stripParticipantPostfix(participant.identity)}
                       {isMe && (
                         <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem' }}>
                           {' '}
@@ -431,20 +532,36 @@ export function UnifiedMenu({ onOpenChat, onOpenRecording, unreadMessages = 0 }:
                         </span>
                       )}
                     </div>
-                    {isRemote && (
-                      <button
-                        onClick={() => handleKick(participant as RemoteParticipant)}
-                        className="lk-button"
-                        style={{
-                          padding: '0.25rem 0.5rem',
-                          fontSize: '0.75rem',
-                          background: 'var(--vcyber-danger-bg)',
-                          border: '1px solid var(--vcyber-danger-border)',
-                        }}
-                      >
-                        Kick
-                      </button>
-                    )}
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                      {isRemote && (
+                        <button
+                          onClick={() => handlePin(participant.identity)}
+                          className="lk-button"
+                          style={{
+                            padding: '0.25rem 0.5rem',
+                            fontSize: '0.75rem',
+                            background: pinnedIdentity === participant.identity ? 'var(--vcyber-success-bg)' : 'var(--vcyber-primary)',
+                            border: '1px solid rgba(255,255,255,0.06)',
+                          }}
+                        >
+                          {pinnedIdentity === participant.identity ? 'Unpin (local)' : 'Pin (local)'}
+                        </button>
+                      )}
+                      {isHost && isRemote && (
+                        <button
+                          onClick={() => handleKick(participant as RemoteParticipant)}
+                          className="lk-button"
+                          style={{
+                            padding: '0.25rem 0.5rem',
+                            fontSize: '0.75rem',
+                            background: 'var(--vcyber-danger-bg)',
+                            border: '1px solid var(--vcyber-danger-border)',
+                          }}
+                        >
+                          Kick
+                        </button>
+                      )}
+                    </div>
                   </div>
                 );
               })}

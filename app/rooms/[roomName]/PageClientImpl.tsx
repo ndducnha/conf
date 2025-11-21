@@ -1,5 +1,5 @@
 'use client';
-
+import { PinnedParticipantContext } from '@/lib/PinnedParticipantContext';
 import React from 'react';
 import { decodePassphrase } from '@/lib/client-utils';
 import { DebugMode } from '@/lib/Debug';
@@ -24,6 +24,7 @@ import {
   RoomAudioRenderer,
   ConnectionStateToast,
 } from '@livekit/components-react';
+import { useParticipants } from '@livekit/components-react';
 import { Track } from 'livekit-client';
 import {
   ExternalE2EEKeyProvider,
@@ -40,6 +41,7 @@ import {
 import { useRouter } from 'next/navigation';
 import { useSetupE2EE } from '@/lib/useSetupE2EE';
 import { useLowCPUOptimizer } from '@/lib/usePerfomanceOptimiser';
+import PinOverlay from '@/lib/PinOverlay';
 
 const CONN_DETAILS_ENDPOINT =
   process.env.NEXT_PUBLIC_CONN_DETAILS_ENDPOINT ?? '/api/connection-details';
@@ -82,7 +84,7 @@ export function PageClientImpl(props: {
   return (
     <main data-lk-theme="default" style={{ height: '100%' }}>
       {connectionDetails === undefined || preJoinChoices === undefined ? (
-        <div style={{ display: 'grid', placeItems: 'center', height: '100%' }}>
+        <div suppressHydrationWarning style={{ display: 'grid', placeItems: 'center', height: '100%' }}>
           <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
             <img
               src="/images/logo.jpg"
@@ -224,6 +226,7 @@ function VideoConferenceComponent(props: {
             }
           }
         }
+        // Note: pin/unpin is now local-only — we no longer handle a 'pin-participant' broadcast here.
       } catch (error) {
         console.error('Error handling data:', error);
       }
@@ -286,6 +289,9 @@ function VideoConferenceComponent(props: {
     };
   }, [e2eeSetupComplete, room, props.connectionDetails, props.userChoices]);
 
+  // Pinned participant state is local to this client only.
+  const [pinnedIdentity, setPinnedIdentity] = React.useState<string | null>(null);
+
   const lowPowerMode = useLowCPUOptimizer(room);
 
   const router = useRouter();
@@ -309,8 +315,9 @@ function VideoConferenceComponent(props: {
 
   return (
     <div className="lk-room-container" style={{ position: 'relative' }}>
-      <RoomContext.Provider value={room}>
-        {waitingForApproval ? (
+      <PinnedParticipantContext.Provider value={{ pinnedIdentity, setPinnedIdentity }}>
+        <RoomContext.Provider value={room}>
+          {waitingForApproval ? (
           <div
             style={{
               display: 'flex',
@@ -345,6 +352,7 @@ function VideoConferenceComponent(props: {
           </>
         )}
       </RoomContext.Provider>
+      </PinnedParticipantContext.Provider>
     </div>
   );
 }
@@ -360,6 +368,46 @@ function CustomVideoConferenceLayout() {
     ],
     { onlySubscribed: false },
   );
+  const participants = useParticipants();
+  // Pinned participant (from context)
+  const pinnedCtx = React.useContext(PinnedParticipantContext) as {
+    pinnedIdentity: string | null;
+    setPinnedIdentity: (id: string | null) => void;
+  } | null;
+  const pinnedIdentity = pinnedCtx?.pinnedIdentity ?? null;
+
+  // Auto-pin logic for screen shares: if a screen share appears, pin that participant; when it ends, clear auto-pin.
+  const autoPinnedRef = React.useRef<string | null>(null);
+  React.useEffect(() => {
+    const screenTrack = tracks.find((t: any) => t.source === Track.Source.ScreenShare && t.participant?.identity);
+    if (screenTrack && screenTrack.participant) {
+      const id = screenTrack.participant.identity;
+      // Only auto-pin if there is no manual pin, or if the current pinned was set automatically by us
+      const currentlyPinned = pinnedCtx?.pinnedIdentity ?? null;
+      const pinnedWasAuto = autoPinnedRef.current && currentlyPinned === autoPinnedRef.current;
+      if (pinnedCtx && (currentlyPinned === null || pinnedWasAuto)) {
+        pinnedCtx.setPinnedIdentity(id);
+        autoPinnedRef.current = id;
+      }
+    } else {
+      // no screen share present
+      if (autoPinnedRef.current && pinnedCtx && pinnedCtx.pinnedIdentity === autoPinnedRef.current) {
+        pinnedCtx.setPinnedIdentity(null);
+      }
+      autoPinnedRef.current = null;
+    }
+  }, [tracks.map((t: any) => `${t?.participant?.identity}:${t?.source}`).join('|'), pinnedCtx]);
+  const pinnedTracks = React.useMemo(() => {
+    if (!pinnedIdentity) return tracks.filter((t: any) => t.participant?.identity === pinnedIdentity);
+    // Prefer screen-share tracks for the pinned participant so spotlight only shows the screen when available
+    const screenTracks = tracks.filter((t: any) => t.participant?.identity === pinnedIdentity && t.source === Track.Source.ScreenShare);
+    if (screenTracks.length > 0) return screenTracks;
+    return tracks.filter((t: any) => t.participant?.identity === pinnedIdentity);
+  }, [tracks, pinnedIdentity]);
+  const otherTracks = React.useMemo(
+    () => tracks.filter((t: any) => t.participant?.identity !== pinnedIdentity),
+    [tracks, pinnedIdentity],
+  );
 
   const handleOpenChat = React.useCallback(() => {
     setShowChat(true);
@@ -372,15 +420,65 @@ function CustomVideoConferenceLayout() {
     }
   }, [showChat]);
 
+
+  const pinnedParticipant = React.useMemo(() => participants.find((p) => p.identity === pinnedIdentity) || null, [participants, pinnedIdentity]);
+  const otherParticipants = React.useMemo(() => participants.filter((p) => p.identity !== pinnedIdentity), [participants, pinnedIdentity]);
+
   return (
     <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-      <div style={{ flex: 1, display: 'flex', position: 'relative', overflow: 'hidden' }}>
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+      <div style={{ flex: 1, display: 'flex', position: 'relative', overflow: 'auto' }}>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }} className="video-layout">
+      {pinnedIdentity ? (
+      <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
+
+        {/* SPOTLIGHT */}
+        <div
+          className="spotlight-wrapper"
+          style={{
+            flex: '0 0 70%',
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'hidden',
+          }}
+        >
           <div style={{ flex: 1, overflow: 'hidden' }}>
-            <GridLayout tracks={tracks}>
+            <GridLayout tracks={pinnedTracks}>
               <ParticipantTile />
             </GridLayout>
           </div>
+        </div>
+
+        {/* OTHERS */}
+        <div
+          className="others-wrapper"
+          style={{
+            flex: '0 0 30%',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '0.5rem',
+            paddingLeft: '0.5rem',
+            overflowY: 'auto',
+          }}
+        >
+          <div style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.7)', paddingBottom: '0.25rem' }}>
+            Spotlight
+          </div>
+          <div style={{ flex: 1, overflow: 'hidden' }}>
+            <GridLayout tracks={otherTracks}>
+              <ParticipantTile />
+            </GridLayout>
+          </div>
+        </div>
+
+      </div>
+    ) : (
+      <div style={{ flex: 1, overflow: 'hidden' }}>
+        <GridLayout tracks={tracks}>
+          <ParticipantTile />
+        </GridLayout>
+      </div>
+    )}
+
           <div
             style={{
               padding: '1rem',
@@ -389,6 +487,7 @@ function CustomVideoConferenceLayout() {
               gap: '0.5rem',
               alignItems: 'center',
             }}
+            className='ControlBar-Menu'
           >
             <div style={{ flex: 1 }}>
               <ControlBar variation="verbose" />
@@ -460,9 +559,11 @@ function CustomVideoConferenceLayout() {
             bottom: 0 !important;
             width: 100% !important;
             z-index: 1000 !important;
+            overflow: auto !important;
           }
         }
       `}</style>
+
     </div>
   );
 }

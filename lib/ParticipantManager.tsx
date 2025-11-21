@@ -4,6 +4,8 @@ import React from 'react';
 import { useParticipants, useRoomContext } from '@livekit/components-react';
 import { RemoteParticipant } from 'livekit-client';
 import toast from 'react-hot-toast';
+import { usePinnedParticipant } from './PinnedParticipantContext';
+import { stripParticipantPostfix } from './client-utils';
 
 export function ParticipantManager() {
   const participants = useParticipants();
@@ -97,12 +99,13 @@ export function ParticipantManager() {
         topic: 'participant-control',
       });
 
-      toast.success(`Kicked ${participant.name || participant.identity}`);
+      toast.success(`Kicked ${participant.name || stripParticipantPostfix(participant.identity)}`);
     } catch (error) {
       console.error('Error kicking participant:', error);
       toast.error('Failed to kick participant');
     }
   };
+
 
   if (!isHost) {
     return null;
@@ -187,7 +190,9 @@ export function ParticipantManager() {
                       border: '1px solid var(--vcyber-warning-border)',
                     }}
                   >
-                    <div style={{ marginBottom: '0.5rem' }}>{identity}</div>
+                    <div style={{ marginBottom: '0.5rem' }}>
+                      {stripParticipantPostfix(identity)}
+                    </div>
                     <div style={{ display: 'flex', gap: '0.5rem' }}>
                       <button
                         onClick={() => handleApprove(identity)}
@@ -250,7 +255,7 @@ export function ParticipantManager() {
                 >
                   <div>
                     <div style={{ fontWeight: 500 }}>
-                      {participant.name || participant.identity}
+                      {participant.name || stripParticipantPostfix(participant.identity)}
                       {isMe && (
                         <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem' }}>
                           {' '}
@@ -260,18 +265,20 @@ export function ParticipantManager() {
                     </div>
                   </div>
                   {isRemote && (
-                    <button
-                      onClick={() => handleKick(participant as RemoteParticipant)}
-                      className="lk-button"
-                      style={{
-                        padding: '0.25rem 0.5rem',
-                        fontSize: '0.75rem',
-                        background: 'var(--vcyber-danger-bg)',
-                        border: '1px solid var(--vcyber-danger-border)',
-                      }}
-                    >
-                      Kick
-                    </button>
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                      <button
+                        onClick={() => handleKick(participant as RemoteParticipant)}
+                        className="lk-button"
+                        style={{
+                          padding: '0.25rem 0.5rem',
+                          fontSize: '0.75rem',
+                          background: 'var(--vcyber-danger-bg)',
+                          border: '1px solid var(--vcyber-danger-border)',
+                        }}
+                      >
+                        Kick
+                      </button>
+                    </div>
                   )}
                 </div>
               );

@@ -27,3 +27,11 @@ export function isLowPowerDevice() {
 export function isMeetStaging() {
   return new URL(location.origin).host === 'meet.staging.livekit.io';
 }
+
+// Remove the random postfix appended to participant identities (format: name__xxxx)
+export function stripParticipantPostfix(identity?: string | null): string {
+  if (!identity) return 'Unknown';
+  const idx = identity.indexOf('__');
+  if (idx === -1) return identity;
+  return identity.substring(0, idx);
+}
